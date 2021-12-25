@@ -98,6 +98,8 @@ public class Rouge {
         // the window or has pressed the ESCAPE key.
         while (!glfwWindowShouldClose(window)) {
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // clear the framebuffer
+            
+            draw();
 
             glfwSwapBuffers(window); // swap the color buffers
 
@@ -105,6 +107,17 @@ public class Rouge {
             // invoked during this call.
             glfwPollEvents();
         }
+    }
+    
+    private void draw() {
+        glBegin(GL_TRIANGLES);
+        glColor3f(1.0f, 0.0f, 0.0f);
+        glVertex2f(-0.5f, -0.5f);
+        glColor3f(0.0f, 1.0f, 0.0f);
+        glVertex2f(0.0f, 0.5f);
+        glColor3f(0.0f, 0.0f, 1.0f);
+        glVertex2f(0.5f, -0.5f);
+        glEnd();
     }
 }
 
