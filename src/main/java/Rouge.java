@@ -14,8 +14,7 @@ import java.nio.file.Paths;
 
 import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
 import static org.lwjgl.glfw.GLFW.*;
-import static org.lwjgl.opengl.GL11.*;
-import static org.lwjgl.opengl.GL20.glUniformMatrix4fv;
+import static org.lwjgl.opengl.GL33.*;
 import static org.lwjgl.system.MemoryStack.stackPush;
 import static org.lwjgl.system.MemoryUtil.NULL;
 
@@ -146,7 +145,7 @@ public class Rouge {
     }
     
     private void draw() {
-        glBegin(GL_TRIANGLE_STRIP);
+        glBegin(GL_TRIANGLES);
         glColor3f(1.0f, 0.0f, 0.0f);
         glVertex2f(-0.5f, -0.5f);
         glColor3f(0.0f, 1.0f, 0.0f);

@@ -1,6 +1,6 @@
 package graphics;
 
-import static org.lwjgl.opengl.GL20.*;
+import static org.lwjgl.opengl.GL33.*;
 
 public class Shader {
     int id;
