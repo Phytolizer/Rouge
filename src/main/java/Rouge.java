@@ -54,9 +54,7 @@ public class Rouge {
             if (key == GLFW_KEY_ESCAPE && action == GLFW_RELEASE)
                 glfwSetWindowShouldClose(window, true); // We will detect this in the rendering loop
         });
-        glfwSetWindowSizeCallback(window, (window, x, y) -> {
-            glViewport(0, 0, x, y);
-        });
+        glfwSetWindowSizeCallback(window, (window, x, y) -> glViewport(0, 0, x, y));
 
         // Get the thread stack and push a new frame
         try (MemoryStack stack = stackPush()) {
