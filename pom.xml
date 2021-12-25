@@ -8,5 +8,11 @@
     <artifactId>Rouge</artifactId>
     <version>1.0-SNAPSHOT</version>
 
-    
+    <dependencies>
+        <dependency>
+            <groupId>de.gurkenlabs</groupId>
+            <artifactId>litiengine</artifactId>
+            <version>0.5.1</version>
+        </dependency>
+    </dependencies>
 </project>
