@@ -45,7 +45,7 @@ public class Rouge {
         glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE); // the window will be resizable
 
         // Create the window
-        window = glfwCreateWindow(300, 300, "jagshamesh", NULL, NULL);
+        window = glfwCreateWindow(1280, 720, "jagshamesh", NULL, NULL);
         if (window == NULL)
             throw new RuntimeException("Failed to create the GLFW window");
 
