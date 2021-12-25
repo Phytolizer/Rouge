@@ -54,6 +54,9 @@ public class Rouge {
             if (key == GLFW_KEY_ESCAPE && action == GLFW_RELEASE)
                 glfwSetWindowShouldClose(window, true); // We will detect this in the rendering loop
         });
+        glfwSetWindowSizeCallback(window, (window, x, y) -> {
+            glViewport(0, 0, x, y);
+        });
 
         // Get the thread stack and push a new frame
         try (MemoryStack stack = stackPush()) {
@@ -110,7 +113,7 @@ public class Rouge {
     }
     
     private void draw() {
-        glBegin(GL_TRIANGLES);
+        glBegin(GL_TRIANGLE_STRIP);
         glColor3f(1.0f, 0.0f, 0.0f);
         glVertex2f(-0.5f, -0.5f);
         glColor3f(0.0f, 1.0f, 0.0f);
