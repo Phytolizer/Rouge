@@ -3,7 +3,7 @@ package graphics;
 import static org.lwjgl.opengl.GL33.*;
 
 public class Shader {
-    int id;
+    int shaderId;
     
     public Shader(String vertexSource, String fragmentSource) {
         int vertexId = glCreateShader(GL_VERTEX_SHADER);
@@ -20,21 +20,21 @@ public class Shader {
             var log = glGetShaderInfoLog(fragmentId);
             throw new RuntimeException("Fragment shader compilation failed: " + log);
         }
-        id = glCreateProgram();
-        glAttachShader(id, vertexId);
-        glAttachShader(id, fragmentId);
-        glLinkProgram(id);
-        if (glGetProgrami(id, GL_LINK_STATUS) == GL_FALSE) {
-            var log = glGetProgramInfoLog(id);
+        shaderId = glCreateProgram();
+        glAttachShader(shaderId, vertexId);
+        glAttachShader(shaderId, fragmentId);
+        glLinkProgram(shaderId);
+        if (glGetProgrami(shaderId, GL_LINK_STATUS) == GL_FALSE) {
+            var log = glGetProgramInfoLog(shaderId);
             throw new RuntimeException("Shader linking failed: " + log);
         }
     }
     
     public void use() {
-        glUseProgram(id);
+        glUseProgram(shaderId);
     }
     
     public int getUniformLocation(String name) {
-        return glGetUniformLocation(id, name);
+        return glGetUniformLocation(shaderId, name);
     }
 }
