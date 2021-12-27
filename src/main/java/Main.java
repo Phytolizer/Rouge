@@ -17,14 +17,11 @@ public class Main {
             if(rougeKeyListener.getKeyState(GLFW_KEY_A)) rougeTriangle.increaseX(-0.01f);
             if(rougeKeyListener.getKeyState(GLFW_KEY_W)) rougeTriangle.increaseY(0.01f);
             if(rougeKeyListener.getKeyState(GLFW_KEY_S)) rougeTriangle.increaseY(-0.01f);
-            if(rougeKeyListener.getKeyState(GLFW_KEY_O)) rougeTriangle.increaseZ(0.01f);
-            if(rougeKeyListener.getKeyState(GLFW_KEY_L)) rougeTriangle.increaseZ(-0.01f);
 
             float x = rougeTriangle.getX();
             float y = rougeTriangle.getY();
-            float z = rougeTriangle.getZ();
 
-            rougeWindow.draw(x, y, z);
+            rougeWindow.draw(x, y);
 
         });
     }
