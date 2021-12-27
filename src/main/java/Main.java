@@ -1,6 +1,6 @@
-import graphics.Window;
-import eventlisteners.KeyListener;
-import logic.Entity;
+import engine.graphics.Window;
+import engine.eventlisteners.KeyListener;
+import engine.logic.Entity;
 
 import static org.lwjgl.glfw.GLFW.*;
 

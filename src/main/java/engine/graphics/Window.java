@@ -1,5 +1,6 @@
-package graphics;
+package engine.graphics;
 
+import engine.math.Matrix4;
 import org.jetbrains.annotations.NotNull;
 import org.lwjgl.Version;
 import org.lwjgl.glfw.GLFWErrorCallback;
@@ -44,7 +45,7 @@ public class Window {
         
         glfwSetWindowSizeCallback(windowHandle, (window, x, y) -> {
             glViewport(0, 0, x, y);
-            glUniformMatrix4fv(windowShader.getUniformLocation("projection"), false, math.Matrix4.ortho(0, 1280, 720, 0, -1, 1).values);
+            glUniformMatrix4fv(windowShader.getUniformLocation("projection"), false, Matrix4.ortho(0, 1280, 720, 0, -1, 1).values);
         });
         
         try (MemoryStack stack = stackPush()) {
@@ -99,7 +100,7 @@ public class Window {
         }
         
         windowShader = new Shader(vertexSource, fragmentSource);
-        glUniformMatrix4fv(windowShader.getUniformLocation("projection"), false, math.Matrix4.ortho(0, 1280, 720, 0, -1, 1).values);
+        glUniformMatrix4fv(windowShader.getUniformLocation("projection"), false, Matrix4.ortho(0, 1280, 720, 0, -1, 1).values);
         
         glClearColor(1.0f, 0.0f, 0.0f, 0.0f);
         

@@ -1,4 +1,4 @@
-package logic;
+package engine.logic;
 
 public class Entity {
     private float x;
