@@ -94,12 +94,21 @@ public class Window {
 
         String vertexSource;
         String fragmentSource;
-        try {
-            vertexSource = readEntireFile("assets/shaders/vertex.glsl");
-            fragmentSource = readEntireFile("assets/shaders/fragment.glsl");
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+
+        vertexSource = "#version 330 core\n" +
+                    "\n" +
+                    "void main(void)\n" +
+                    "{\n" +
+                    "    gl_Position = ftransform();\n" +
+                    "}";
+        fragmentSource = "#version 330 core\n" +
+                    "\n" +
+                    "out vec4 outColor;\n" +
+                    "\n" +
+                    "void main()\n" +
+                    "{\n" +
+                    "    outColor = vec4(1.0, 1.0, 1.0, 1.0);\n" +
+                    "}";
 
         windowShader = new Shader(vertexSource, fragmentSource);
         glUniformMatrix4fv(windowShader.getUniformLocation("projection"), false, math.Matrix4.ortho(0, 1280, 720, 0, -1, 1).values);
@@ -120,14 +129,14 @@ public class Window {
         }
     }
 
-    public void draw(float x, float y) {
+    public void draw(float x, float y, float z) {
         glBegin(GL_TRIANGLES);
         glColor3f(1.0f, 0.0f, 0.0f);
-        glVertex2f(x-0.5f, y-0.5f);
+        glVertex3f(x-0.5f, y-0.5f, z);
         glColor3f(0.0f, 1.0f, 0.0f);
-        glVertex2f(x, y+0.5f);
+        glVertex3f(x, y+0.5f, z);
         glColor3f(0.0f, 0.0f, 1.0f);
-        glVertex2f(x+0.5f, y-0.5f);
+        glVertex3f(x+0.5f, y-0.5f, z);
         glEnd();
     }
 
