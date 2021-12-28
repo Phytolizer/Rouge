@@ -3,8 +3,8 @@ package engine.graphics;
 import engine.math.Matrix4;
 import org.jetbrains.annotations.NotNull;
 import org.lwjgl.Version;
+import org.lwjgl.glfw.*;
 import org.lwjgl.glfw.GLFWErrorCallback;
-import org.lwjgl.glfw.GLFWKeyCallbackI;
 import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.system.MemoryStack;
@@ -14,6 +14,7 @@ import java.nio.IntBuffer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.function.Consumer;
 
 import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
 import static org.lwjgl.glfw.GLFW.*;
@@ -22,10 +23,18 @@ import static org.lwjgl.system.MemoryStack.stackPush;
 import static org.lwjgl.system.MemoryUtil.NULL;
 
 public class Window {
-    private final long windowHandle;
-    private Shader windowShader = null;
-    
-    public Window() {
+    private static Window instance = null;
+    private static long windowHandle;
+    private static Shader windowShader = null;
+    private static Runnable timeSetter = () -> {};
+
+    private Window() {
+    }
+
+    public static void init() {
+        if(instance != null) return;
+        instance = new Window();
+
         GLFWErrorCallback.createPrint(System.err).set();
         
         if (!glfwInit()) {
@@ -59,6 +68,7 @@ public class Window {
             GLFWVidMode vidmode = glfwGetVideoMode(glfwGetPrimaryMonitor());
             
             // Center the window
+            assert vidmode != null;
             glfwSetWindowPos(windowHandle,
                     (vidmode.width() - pWidth.get(0)) / 2, (vidmode.height() - pHeight.get(0)) / 2);
         } // the stack frame is popped automatically
@@ -70,26 +80,25 @@ public class Window {
         glfwShowWindow(windowHandle);
     }
     
-    public <Listener extends GLFWKeyCallbackI> void setKeyCallback(Listener listener) {
+    public static <Listener extends GLFWKeyCallbackI> void setKeyListener(Listener listener) {
+        if(instance == null) throw new IllegalStateException();
+
         glfwSetKeyCallback(windowHandle, listener);
     }
-    
-    public void run(Runnable task) {
-        System.out.println("Hello LWJGL" + Version.getVersion() + "!");
-        
-        this.loop(task);
-        
-        glfwFreeCallbacks(windowHandle);
-        glfwDestroyWindow(windowHandle);
-        
-        glfwTerminate();
-        glfwSetErrorCallback(null).free();
+
+    public static void setClock(Consumer<Double> clockFunc) {
+        if(instance == null) throw new IllegalStateException();
+
+        timeSetter = () -> clockFunc.accept(glfwGetTime());
     }
     
-    
-    private void loop(Runnable task) {
+    public static void run(Runnable task) {
+        if(instance == null) throw new IllegalStateException();
+
+        System.out.println("Hello LWJGL" + Version.getVersion() + "!");
+
         GL.createCapabilities();
-        
+
         String vertexSource;
         String fragmentSource;
         try {
@@ -98,27 +107,34 @@ public class Window {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        
+
         windowShader = new Shader(vertexSource, fragmentSource);
         glUniformMatrix4fv(windowShader.getUniformLocation("projection"), false, Matrix4.ortho(0, 1280, 720, 0, -1, 1).values);
-        
+
         glClearColor(1.0f, 0.0f, 0.0f, 0.0f);
-        
+
         windowShader.use();
         while (!glfwWindowShouldClose(windowHandle)) {
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // clear the framebuffer
-            
+            timeSetter.run();
+
             task.run();
-            
+
             glfwSwapBuffers(windowHandle); // swap the color buffers
-            
+
             // Poll for window events. The key callback above will only be
             // invoked during this call.
             glfwPollEvents();
         }
+        
+        glfwFreeCallbacks(windowHandle);
+        glfwDestroyWindow(windowHandle);
+        
+        glfwTerminate();
+        glfwSetErrorCallback(null).free();
     }
     
-    public void draw(float x, float y) {
+    public static void draw(float x, float y) {
         glBegin(GL_TRIANGLES);
         glColor3f(1.0f, 0.0f, 0.0f);
         glVertex2f(x - 0.5f, y - 0.5f);
@@ -129,7 +145,7 @@ public class Window {
         glEnd();
     }
     
-    private @NotNull String readEntireFile(String filename) throws IOException {
+    private static @NotNull String readEntireFile(String filename) throws IOException {
         var bytes = Files.readAllBytes(Paths.get(filename));
         return new String(bytes, StandardCharsets.UTF_8);
     }

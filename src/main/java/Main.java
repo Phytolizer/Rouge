@@ -1,35 +1,40 @@
 import engine.graphics.Window;
 import engine.eventlisteners.KeyListener;
+import engine.logic.Clock;
 import engine.logic.Entity;
 
 import static org.lwjgl.glfw.GLFW.*;
 
 public class Main {
     public static void main(String[] args) {
-        var rougeWindow = new Window();
+        Window.init();
+
         var rougeKeyListener = new KeyListener();
         var rougeTriangle = new Entity();
-        
-        rougeWindow.setKeyCallback(rougeKeyListener);
-        rougeWindow.run(() -> {
-    
+
+        Window.setClock(Clock::setTime);
+        Window.setKeyListener(rougeKeyListener);
+        Window.run(() -> {
+            double timeDelta = Clock.getDeltaTime();
+            float timeConstant = (float) ((1/timeDelta) / 60);
+
             if (rougeKeyListener.getKeyState(GLFW_KEY_D)) {
-                rougeTriangle.increaseX(0.01f);
+                rougeTriangle.increaseX(0.01f * timeConstant);
             }
             if (rougeKeyListener.getKeyState(GLFW_KEY_A)) {
-                rougeTriangle.increaseX(-0.01f);
+                rougeTriangle.increaseX(-0.01f * timeConstant);
             }
             if (rougeKeyListener.getKeyState(GLFW_KEY_W)) {
-                rougeTriangle.increaseY(0.01f);
+                rougeTriangle.increaseY(0.01f * timeConstant);
             }
             if (rougeKeyListener.getKeyState(GLFW_KEY_S)) {
-                rougeTriangle.increaseY(-0.01f);
+                rougeTriangle.increaseY(-0.01f * timeConstant);
             }
             
             float x = rougeTriangle.getX();
             float y = rougeTriangle.getY();
             
-            rougeWindow.draw(x, y);
+            Window.draw(x, y);
             
         });
     }

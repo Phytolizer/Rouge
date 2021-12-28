@@ -1,8 +1,8 @@
 package engine.eventlisteners;
 
+import org.lwjgl.glfw.GLFWKeyCallbackI;
 import java.util.NoSuchElementException;
 
-import org.lwjgl.glfw.*;
 
 import static org.lwjgl.glfw.GLFW.*;
 

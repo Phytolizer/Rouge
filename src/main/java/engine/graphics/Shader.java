@@ -3,7 +3,7 @@ package engine.graphics;
 import static org.lwjgl.opengl.GL33.*;
 
 public class Shader {
-    int shaderId;
+    private int shaderId;
     
     public Shader(String vertexSource, String fragmentSource) {
         int vertexId = glCreateShader(GL_VERTEX_SHADER);
