@@ -2,6 +2,7 @@ package engine.graphics;
 
 import engine.math.Matrix4;
 import org.jetbrains.annotations.NotNull;
+import org.lwjgl.BufferUtils;
 import org.lwjgl.Version;
 import org.lwjgl.glfw.*;
 import org.lwjgl.glfw.GLFWErrorCallback;
@@ -10,6 +11,7 @@ import org.lwjgl.opengl.GL;
 import org.lwjgl.system.MemoryStack;
 
 import java.io.IOException;
+import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -27,6 +29,9 @@ public class Window {
     private static long windowHandle;
     private static Shader windowShader = null;
     private static Runnable timeSetter = () -> {};
+    private static float[] vertexArray;
+    private static int[] elementArray;
+    private static int vaoID, vboID, eboID;
 
     private Window() {
     }
@@ -111,9 +116,43 @@ public class Window {
         windowShader = new Shader(vertexSource, fragmentSource);
         glUniformMatrix4fv(windowShader.getUniformLocation("projection"), false, Matrix4.ortho(0, 1280, 720, 0, -1, 1).values);
 
+        vertexArray = new float[]{
+                0, 0.5f, 1f,       1f, 1f, 1f, 1f,
+                -0.5f, -0.5f, 1f,  1f, 1f, 1f, 1f,
+                0.5f, -0.5f, 1f,   1f, 1f, 1f, 1f
+        };
+
+        elementArray = new int[]{
+                0, 1, 2
+        };
+
+        vaoID = glGenVertexArrays();
+        glBindVertexArray(vaoID);
+        FloatBuffer vertexBuffer = BufferUtils.createFloatBuffer(vertexArray.length);
+        vertexBuffer.put(vertexArray).flip();
+
+        vboID = glGenBuffers();
+        glBindBuffer(GL_ARRAY_BUFFER, vboID);
+        glBufferData(GL_ARRAY_BUFFER, vertexBuffer, GL_DYNAMIC_DRAW);
+
+        IntBuffer elementBuffer = BufferUtils.createIntBuffer(elementArray.length);
+        elementBuffer.put(elementArray).flip();
+        eboID = glGenBuffers();
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, eboID);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, elementBuffer, GL_DYNAMIC_DRAW);
+
+        int positionSize = 3;
+        int colorSize = 4;
+        int floatSizeBytes = 4;
+        int vertexSizeBytes = (positionSize + colorSize) * floatSizeBytes;
+        glVertexAttribPointer(0, positionSize, GL_FLOAT, false, vertexSizeBytes, 0);
+        glEnableVertexAttribArray(0);
+        glVertexAttribPointer(1, colorSize, GL_FLOAT, false, vertexSizeBytes, positionSize*floatSizeBytes);
+        glEnableVertexAttribArray(1);
+
         glClearColor(1.0f, 0.0f, 0.0f, 0.0f);
 
-        windowShader.use();
+
         while (!glfwWindowShouldClose(windowHandle)) {
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // clear the framebuffer
             timeSetter.run();
@@ -134,15 +173,32 @@ public class Window {
         glfwSetErrorCallback(null).free();
     }
     
-    public static void draw(float x, float y) {
-        glBegin(GL_TRIANGLES);
-        glColor3f(1.0f, 0.0f, 0.0f);
-        glVertex2f(x - 0.5f, y - 0.5f);
-        glColor3f(0.0f, 1.0f, 0.0f);
-        glVertex2f(x, y + 0.5f);
-        glColor3f(0.0f, 0.0f, 1.0f);
-        glVertex2f(x + 0.5f, y - 0.5f);
-        glEnd();
+    public static void drawTriangle(float x, float y, float z) {
+        glUseProgram(windowShader.getShaderId());
+        glBindVertexArray(vaoID);
+        glEnableVertexAttribArray(0);
+        glEnableVertexAttribArray(1);
+
+        float[] newVertexArray = {
+             x, y+0.5f, z,      1f, 1f, 1f, 1f,
+             x-0.5f, y-0.5f, z, 1f, 1f, 1f, 1f,
+             x+0.5f, y-0.5f, z, 1f, 1f, 1f, 1f
+        };
+
+        FloatBuffer newVertexBuffer = BufferUtils.createFloatBuffer(newVertexArray.length);
+        newVertexBuffer.put(newVertexArray).flip();
+
+        glBufferSubData(GL_ARRAY_BUFFER, 0,  newVertexBuffer);
+
+        glDrawElements(GL_TRIANGLES, elementArray.length, GL_UNSIGNED_INT, 0);
+
+        glDisableVertexAttribArray(0);
+        glDisableVertexAttribArray(1);
+        glBindVertexArray(0);
+        glUseProgram(0);
+
+
+
     }
     
     private static @NotNull String readEntireFile(String filename) throws IOException {

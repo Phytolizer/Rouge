@@ -29,11 +29,11 @@ public class Shader {
             throw new RuntimeException("Shader linking failed: " + log);
         }
     }
-    
-    public void use() {
-        glUseProgram(shaderId);
+
+    public int getShaderId() {
+        return shaderId;
     }
-    
+
     public int getUniformLocation(String name) {
         return glGetUniformLocation(shaderId, name);
     }

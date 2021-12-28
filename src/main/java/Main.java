@@ -30,11 +30,20 @@ public class Main {
             if (rougeKeyListener.getKeyState(GLFW_KEY_S)) {
                 rougeTriangle.increaseY(-0.01f * timeConstant);
             }
+
+            if (rougeKeyListener.getKeyState(GLFW_KEY_UP)) {
+                rougeTriangle.increaseZ(0.01f * timeConstant);
+            }
+
+            if (rougeKeyListener.getKeyState(GLFW_KEY_DOWN)) {
+                rougeTriangle.increaseZ(-0.01f * timeConstant);
+            }
             
             float x = rougeTriangle.getX();
             float y = rougeTriangle.getY();
+            float z = rougeTriangle.getZ();
             
-            Window.draw(x, y);
+            Window.drawTriangle(x, y, z);
             
         });
     }
