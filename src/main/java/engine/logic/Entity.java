@@ -18,7 +18,7 @@ public class Entity {
     public void increaseY(float inc) {
         this.y += inc;
     }
-
+    
     public void increaseZ(float inc) {
         this.z += inc;
     }
@@ -30,7 +30,7 @@ public class Entity {
     public float getY() {
         return this.y;
     }
-
+    
     public float getZ() {
         return this.z;
     }

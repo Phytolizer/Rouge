@@ -1,6 +1,7 @@
 package engine.eventlisteners;
 
 import org.lwjgl.glfw.GLFWKeyCallbackI;
+
 import java.util.NoSuchElementException;
 
 
@@ -13,7 +14,7 @@ public class KeyListener implements GLFWKeyCallbackI {
         if (key > keyStates.length) {
             throw new NoSuchElementException();
         }
-    
+        
         if (action == GLFW_RELEASE) {
             keyStates[key] = false;
         }

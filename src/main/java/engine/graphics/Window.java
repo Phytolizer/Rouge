@@ -28,18 +28,21 @@ public class Window {
     private static Window instance = null;
     private static long windowHandle;
     private static Shader windowShader = null;
-    private static Runnable timeSetter = () -> {};
+    private static Runnable timeSetter = () -> {
+    };
     private static float[] vertexArray;
     private static int[] elementArray;
     private static int vaoID, vboID, eboID;
-
+    
     private Window() {
     }
-
+    
     public static void init() {
-        if(instance != null) return;
+        if (instance != null) {
+            return;
+        }
         instance = new Window();
-
+        
         GLFWErrorCallback.createPrint(System.err).set();
         
         if (!glfwInit()) {
@@ -86,24 +89,30 @@ public class Window {
     }
     
     public static <Listener extends GLFWKeyCallbackI> void setKeyListener(Listener listener) {
-        if(instance == null) throw new IllegalStateException();
-
+        if (instance == null) {
+            throw new IllegalStateException();
+        }
+        
         glfwSetKeyCallback(windowHandle, listener);
     }
-
+    
     public static void setClock(Consumer<Double> clockFunc) {
-        if(instance == null) throw new IllegalStateException();
-
+        if (instance == null) {
+            throw new IllegalStateException();
+        }
+        
         timeSetter = () -> clockFunc.accept(glfwGetTime());
     }
     
     public static void run(Runnable task) {
-        if(instance == null) throw new IllegalStateException();
-
+        if (instance == null) {
+            throw new IllegalStateException();
+        }
+        
         System.out.println("Hello LWJGL" + Version.getVersion() + "!");
-
+        
         GL.createCapabilities();
-
+        
         String vertexSource;
         String fragmentSource;
         try {
@@ -112,55 +121,56 @@ public class Window {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-
+        
         windowShader = new Shader(vertexSource, fragmentSource);
         glUniformMatrix4fv(windowShader.getUniformLocation("projection"), false, Matrix4.ortho(0, 1280, 720, 0, -1, 1).values);
-
+        
         vertexArray = new float[]{
-                0, 0.5f, 1f,       1f, 1f, 1f, 1f,
-                -0.5f, -0.5f, 1f,  1f, 1f, 1f, 1f,
-                0.5f, -0.5f, 1f,   1f, 1f, 1f, 1f
+                0, 0.5f, 1f, 1f, 1f, 1f, 1f,
+                -0.5f, -0.5f, 1f, 1f, 1f, 1f, 1f,
+                0.5f, -0.5f, 1f, 1f, 1f, 1f, 1f
         };
-
+        
         elementArray = new int[]{
                 0, 1, 2
         };
-
+        
         vaoID = glGenVertexArrays();
         glBindVertexArray(vaoID);
         FloatBuffer vertexBuffer = BufferUtils.createFloatBuffer(vertexArray.length);
         vertexBuffer.put(vertexArray).flip();
-
+        
         vboID = glGenBuffers();
         glBindBuffer(GL_ARRAY_BUFFER, vboID);
         glBufferData(GL_ARRAY_BUFFER, vertexBuffer, GL_DYNAMIC_DRAW);
-
+        
         IntBuffer elementBuffer = BufferUtils.createIntBuffer(elementArray.length);
         elementBuffer.put(elementArray).flip();
         eboID = glGenBuffers();
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, eboID);
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, elementBuffer, GL_DYNAMIC_DRAW);
-
+        
         int positionSize = 3;
         int colorSize = 4;
         int floatSizeBytes = 4;
         int vertexSizeBytes = (positionSize + colorSize) * floatSizeBytes;
         glVertexAttribPointer(0, positionSize, GL_FLOAT, false, vertexSizeBytes, 0);
         glEnableVertexAttribArray(0);
-        glVertexAttribPointer(1, colorSize, GL_FLOAT, false, vertexSizeBytes, positionSize*floatSizeBytes);
+        glVertexAttribPointer(1, colorSize, GL_FLOAT, false, vertexSizeBytes,
+                positionSize * floatSizeBytes);
         glEnableVertexAttribArray(1);
-
+        
         glClearColor(1.0f, 0.0f, 0.0f, 0.0f);
-
-
+        
+        
         while (!glfwWindowShouldClose(windowHandle)) {
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // clear the framebuffer
             timeSetter.run();
-
+            
             task.run();
-
+            
             glfwSwapBuffers(windowHandle); // swap the color buffers
-
+            
             // Poll for window events. The key callback above will only be
             // invoked during this call.
             glfwPollEvents();
@@ -178,27 +188,26 @@ public class Window {
         glBindVertexArray(vaoID);
         glEnableVertexAttribArray(0);
         glEnableVertexAttribArray(1);
-
+        
         float[] newVertexArray = {
-             x, y+0.5f, z,      1f, 1f, 1f, 1f,
-             x-0.5f, y-0.5f, z, 1f, 1f, 1f, 1f,
-             x+0.5f, y-0.5f, z, 1f, 1f, 1f, 1f
+                x, y + 0.5f, z, 1f, 1f, 1f, 1f,
+                x - 0.5f, y - 0.5f, z, 1f, 1f, 1f, 1f,
+                x + 0.5f, y - 0.5f, z, 1f, 1f, 1f, 1f
         };
-
+        
         FloatBuffer newVertexBuffer = BufferUtils.createFloatBuffer(newVertexArray.length);
         newVertexBuffer.put(newVertexArray).flip();
-
-        glBufferSubData(GL_ARRAY_BUFFER, 0,  newVertexBuffer);
-
+        
+        glBufferSubData(GL_ARRAY_BUFFER, 0, newVertexBuffer);
+        
         glDrawElements(GL_TRIANGLES, elementArray.length, GL_UNSIGNED_INT, 0);
-
+        
         glDisableVertexAttribArray(0);
         glDisableVertexAttribArray(1);
         glBindVertexArray(0);
         glUseProgram(0);
-
-
-
+        
+        
     }
     
     private static @NotNull String readEntireFile(String filename) throws IOException {
