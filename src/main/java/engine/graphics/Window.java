@@ -29,8 +29,6 @@ public class Window {
     private static Window instance = null;
     private long windowHandle;
     private Shader windowShader = null;
-    private Runnable timeSetter = () -> {
-    };
     private float[] vertexArray;
     private int[] elementArray;
     private int vaoID, vboID, eboID;
