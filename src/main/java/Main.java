@@ -12,10 +12,9 @@ public class Main {
         var rougeKeyListener = new KeyListener();
         var rougeTriangle = new Entity();
         
-        Window.setClock(Clock::setTime);
+        Window.setClock(new Clock());
         Window.setKeyListener(rougeKeyListener);
-        Window.run(() -> {
-            double timeDelta = Clock.getDeltaTime();
+        Window.run((timeDelta) -> {
             float timeConstant = (float) ((1 / timeDelta) / 60);
             
             if (rougeKeyListener.getKeyState(GLFW_KEY_D)) {
