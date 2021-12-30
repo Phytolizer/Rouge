@@ -9,6 +9,6 @@ out vec4 fragColor;
 
 void main(void)
 {
-    gl_Position = vec4(attrPos, 1.0);
+    gl_Position =vec4(attrPos, 1.0);
     fragColor = attrColor;
 }

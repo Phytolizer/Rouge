@@ -3,7 +3,7 @@ package engine.graphics;
 import static org.lwjgl.opengl.GL33.*;
 
 public class Shader {
-    private int shaderId;
+    private final int shaderId;
     
     public Shader(String vertexSource, String fragmentSource) {
         int vertexId = glCreateShader(GL_VERTEX_SHADER);
@@ -29,11 +29,11 @@ public class Shader {
             throw new RuntimeException("Shader linking failed: " + log);
         }
     }
-
+    
     public int getShaderId() {
         return shaderId;
     }
-
+    
     public int getUniformLocation(String name) {
         return glGetUniformLocation(shaderId, name);
     }

@@ -7,35 +7,33 @@ import static org.lwjgl.glfw.GLFW.*;
 
 public class Main {
     public static void main(String[] args) {
-        Window.init();
-
-        var rougeKeyListener = new KeyListener();
+        var mainWindow = new Window();
+        var mainKeyListener = new KeyListener();
         var rougeTriangle = new Entity();
-
-        Window.setClock(Clock::setTime);
-        Window.setKeyListener(rougeKeyListener);
-        Window.run(() -> {
-            double timeDelta = Clock.getDeltaTime();
-            float timeConstant = (float) ((1/timeDelta) / 60);
-
-            if (rougeKeyListener.getKeyState(GLFW_KEY_D)) {
+        
+        mainWindow.setClock(new Clock());
+        mainWindow.setKeyListener(mainKeyListener);
+        mainWindow.run((timeDelta) -> {
+            float timeConstant = (float) ((1 / timeDelta) / 60);
+            
+            if (mainKeyListener.getKeyState(GLFW_KEY_D)) {
                 rougeTriangle.increaseX(0.01f * timeConstant);
             }
-            if (rougeKeyListener.getKeyState(GLFW_KEY_A)) {
+            if (mainKeyListener.getKeyState(GLFW_KEY_A)) {
                 rougeTriangle.increaseX(-0.01f * timeConstant);
             }
-            if (rougeKeyListener.getKeyState(GLFW_KEY_W)) {
+            if (mainKeyListener.getKeyState(GLFW_KEY_W)) {
                 rougeTriangle.increaseY(0.01f * timeConstant);
             }
-            if (rougeKeyListener.getKeyState(GLFW_KEY_S)) {
+            if (mainKeyListener.getKeyState(GLFW_KEY_S)) {
                 rougeTriangle.increaseY(-0.01f * timeConstant);
             }
-
-            if (rougeKeyListener.getKeyState(GLFW_KEY_UP)) {
+            
+            if (mainKeyListener.getKeyState(GLFW_KEY_UP)) {
                 rougeTriangle.increaseZ(0.01f * timeConstant);
             }
-
-            if (rougeKeyListener.getKeyState(GLFW_KEY_DOWN)) {
+            
+            if (mainKeyListener.getKeyState(GLFW_KEY_DOWN)) {
                 rougeTriangle.increaseZ(-0.01f * timeConstant);
             }
             
@@ -43,7 +41,7 @@ public class Main {
             float y = rougeTriangle.getY();
             float z = rougeTriangle.getZ();
             
-            Window.drawTriangle(x, y, z);
+            mainWindow.drawTriangle(x, y, z);
             
         });
     }
