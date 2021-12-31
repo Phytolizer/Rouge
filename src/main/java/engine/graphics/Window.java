@@ -1,11 +1,13 @@
 package engine.graphics;
 
+import engine.eventlisteners.KeyListener;
+import engine.eventlisteners.Mouse;
+import engine.graphics.internal.QuadConsumer;
+import engine.graphics.internal.Shader;
 import engine.logic.Clock;
 import org.jetbrains.annotations.NotNull;
-import org.joml.Matrix4f;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.Version;
-import org.lwjgl.glfw.*;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.opengl.GL;
@@ -18,7 +20,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Objects;
-import java.util.function.Consumer;
 
 import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
 import static org.lwjgl.glfw.GLFW.*;
@@ -31,63 +32,74 @@ public class Window {
     private Shader windowShader = null;
     private int[] elementArray;
     private int vaoID;
+    private Mouse.CursorPosListener mouseCursorPosListener;
+    private Mouse.ButtonListener mouseButtonListener;
+    private KeyListener keyListener;
     private Clock clock;
-    
+
     public Window() {
         GLFWErrorCallback.createPrint(System.err).set();
-        
+
         if (!glfwInit()) {
             throw new IllegalStateException("Unable to initialize GLFW");
         }
-        
+
         glfwDefaultWindowHints(); // optional, the current window hints are already the default
         glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE); // the window will stay hidden after creation
         glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE); // the window will be resizable
-        
+
         windowHandle = glfwCreateWindow(1280, 720, "Rouge", NULL, NULL);
         if (windowHandle == NULL) {
             throw new RuntimeException("Failed to create the GLFW window");
         }
-        
+
         // Set up a key callback. It will be called every time a key is pressed, repeated or released.
-        
-        glfwSetWindowSizeCallback(windowHandle, (window, x, y) -> {
-            glViewport(0, 0, x, y);
-            glUniformMatrix4fv(windowShader.getUniformLocation("projection"), false, Matrix4f.ortho(0, 1280, 720, 0, -1, 1).values);
-        });
-        
+
+        glfwSetWindowSizeCallback(windowHandle, (window, x, y) -> glViewport(0, 0, x, y));
+
         try (MemoryStack stack = stackPush()) {
             IntBuffer pWidth = stack.mallocInt(1); // int*
             IntBuffer pHeight = stack.mallocInt(1); // int*
-            
+
             // Get the window size passed to glfwCreateWindow
             glfwGetWindowSize(windowHandle, pWidth, pHeight);
-            
+
             // Get the resolution of the primary monitor
             GLFWVidMode vidmode = glfwGetVideoMode(glfwGetPrimaryMonitor());
-            
+
             // Center the window
             assert vidmode != null;
             glfwSetWindowPos(windowHandle,
                     (vidmode.width() - pWidth.get(0)) / 2, (vidmode.height() - pHeight.get(0)) / 2);
         } // the stack frame is popped automatically
-        
+
         // Make the OpenGL context current
         glfwMakeContextCurrent(windowHandle);
         // Enable v-sync
         glfwSwapInterval(1);
         glfwShowWindow(windowHandle);
     }
-    
-    public <Listener extends GLFWKeyCallbackI> void setKeyListener(Listener listener) {
-        glfwSetKeyCallback(windowHandle, listener);
+
+    public void setMouseCursorPosListener(Mouse.CursorPosListener mouseCursorPosListener) {
+        glfwSetCursorPosCallback(windowHandle, mouseCursorPosListener);
+        this.mouseCursorPosListener = mouseCursorPosListener;
+    }
+
+    public void setMouseButtonListener(Mouse.ButtonListener mouseButtonListener) {
+        glfwSetMouseButtonCallback(windowHandle, mouseButtonListener);
+        this.mouseButtonListener = mouseButtonListener;
+    }
+
+    public void setKeyListener(KeyListener keyListener) {
+        glfwSetKeyCallback(windowHandle, keyListener);
+        this.keyListener = keyListener;
     }
     
     public void setClock(Clock clock) {
         this.clock = clock;
     }
     
-    public void run(Consumer<Double> task) {
+    public void run(QuadConsumer<Double, boolean[], double[], boolean[]> task) {
         System.out.println("Hello LWJGL" + Version.getVersion() + "!");
         
         GL.createCapabilities();
@@ -102,7 +114,12 @@ public class Window {
         }
         
         windowShader = new Shader(vertexSource, fragmentSource);
-        glUniformMatrix4fv(windowShader.getUniformLocation("projection"), false, Matrix4.ortho(0, 1280, 720, 0, -1, 1).values);
+
+        float[] vertexArray = new float[]{
+                0, 0.5f, 1f, 1f, 1f, 1f, 1f,
+                -0.5f, -0.5f, 1f, 1f, 1f, 1f, 1f,
+                0.5f, -0.5f, 1f, 1f, 1f, 1f, 1f
+        };
         
         elementArray = new int[]{
                 0, 1, 2
@@ -110,13 +127,12 @@ public class Window {
         
         vaoID = glGenVertexArrays();
         glBindVertexArray(vaoID);
-        
-        VertexBuffer vertexBuffer = new VertexBuffer(
-                7 * Float.BYTES, 3 * Float.BYTES, 4 * Float.BYTES, 0, new float[]{
-                0, 0.5f, 1f, 1f, 1f, 1f, 1f,
-                -0.5f, -0.5f, 1f, 1f, 1f, 1f, 1f,
-                0.5f, -0.5f, 1f, 1f, 1f, 1f, 1f
-        });
+        FloatBuffer vertexBuffer = BufferUtils.createFloatBuffer(vertexArray.length);
+        vertexBuffer.put(vertexArray).flip();
+
+        int vboID = glGenBuffers();
+        glBindBuffer(GL_ARRAY_BUFFER, vboID);
+        glBufferData(GL_ARRAY_BUFFER, vertexBuffer, GL_DYNAMIC_DRAW);
         
         IntBuffer elementBuffer = BufferUtils.createIntBuffer(elementArray.length);
         elementBuffer.put(elementArray).flip();
@@ -124,19 +140,29 @@ public class Window {
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, eboID);
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, elementBuffer, GL_DYNAMIC_DRAW);
         
+        int positionSize = 3;
+        int colorSize = 4;
+        int vertexSizeBytes = (positionSize + colorSize) * Float.BYTES;
+        glVertexAttribPointer(0, positionSize, GL_FLOAT, false, vertexSizeBytes, 0);
+        glEnableVertexAttribArray(0);
+        glVertexAttribPointer(1, colorSize, GL_FLOAT, false, vertexSizeBytes,
+                positionSize * Float.BYTES);
+        glEnableVertexAttribArray(1);
+        
         glClearColor(1.0f, 0.0f, 0.0f, 0.0f);
         
         
         while (!glfwWindowShouldClose(windowHandle)) {
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // clear the framebuffer
-            vertexBuffer.bind();
-            
-            task.accept(clock.tick());
-            
-            glfwSwapBuffers(windowHandle); // swap the color buffers
-            
-            // Poll for window events. The key callback above will only be
-            // invoked during this call.
+
+            double[] cursorXYArray = new double[] {mouseCursorPosListener.getXPos(),
+                                                mouseCursorPosListener.getYPos()};
+
+            task.accept(clock.tick(), keyListener.getAllKeyStates(),
+                        cursorXYArray,
+                        mouseButtonListener.getAllButtonStates());
+
+            glfwSwapBuffers(windowHandle);
             glfwPollEvents();
         }
         
@@ -144,8 +170,8 @@ public class Window {
         glfwDestroyWindow(windowHandle);
         
         glfwTerminate();
-        
-        Objects.requireNonNull(glfwSetErrorCallback(null)).free();
+
+        Objects.requireNonNull( glfwSetErrorCallback(null) ).free();
     }
     
     public void drawTriangle(float x, float y, float z) {
