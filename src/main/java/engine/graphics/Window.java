@@ -4,6 +4,7 @@ import engine.eventlisteners.KeyListener;
 import engine.eventlisteners.Mouse;
 import engine.graphics.internal.QuadConsumer;
 import engine.graphics.internal.Shader;
+import engine.graphics.internal.VertexBuffer;
 import engine.logic.Clock;
 import org.jetbrains.annotations.NotNull;
 import org.lwjgl.BufferUtils;
@@ -127,12 +128,13 @@ public class Window {
         
         vaoID = glGenVertexArrays();
         glBindVertexArray(vaoID);
-        FloatBuffer vertexBuffer = BufferUtils.createFloatBuffer(vertexArray.length);
-        vertexBuffer.put(vertexArray).flip();
 
-        int vboID = glGenBuffers();
-        glBindBuffer(GL_ARRAY_BUFFER, vboID);
-        glBufferData(GL_ARRAY_BUFFER, vertexBuffer, GL_DYNAMIC_DRAW);
+        VertexBuffer vertexBuffer = new VertexBuffer(
+                7 * Float.BYTES, 3 * Float.BYTES, 4 * Float.BYTES, 0, new float[]{
+                0, 0.5f, 1f, 1f, 1f, 1f, 1f,
+                -0.5f, -0.5f, 1f, 1f, 1f, 1f, 1f,
+                0.5f, -0.5f, 1f, 1f, 1f, 1f, 1f
+        });
         
         IntBuffer elementBuffer = BufferUtils.createIntBuffer(elementArray.length);
         elementBuffer.put(elementArray).flip();

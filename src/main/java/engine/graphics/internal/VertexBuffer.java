@@ -1,8 +1,8 @@
-package engine.graphics;
+package engine.graphics.internal;
 
-import static org.lwjgl.opengl.GL15.*;
-import static org.lwjgl.opengl.GL20.glEnableVertexAttribArray;
-import static org.lwjgl.opengl.GL20.glVertexAttribPointer;
+import static org.lwjgl.opengl.GL33.*;
+import static org.lwjgl.opengl.GL33.glEnableVertexAttribArray;
+import static org.lwjgl.opengl.GL33.glVertexAttribPointer;
 
 public class VertexBuffer {
     private float[] data;
