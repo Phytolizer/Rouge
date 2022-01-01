@@ -1,7 +1,7 @@
 import engine.eventlisteners.Mouse;
 import engine.graphics.Window;
 import engine.eventlisteners.KeyListener;
-import engine.logic.Clock;
+import engine.logic.Timer;
 import engine.logic.Entity;
 
 import static org.lwjgl.glfw.GLFW.*;
@@ -11,7 +11,7 @@ public class Main {
         var mainWindow = new Window();
         var rougeTriangle = new Entity();
         
-        mainWindow.setClock(new Clock());
+        mainWindow.setTimer(new Timer());
         mainWindow.setMouseCursorPosListener(new Mouse.CursorPosListener());
         mainWindow.setMouseButtonListener(new Mouse.ButtonListener());
         mainWindow.setKeyListener(new KeyListener());

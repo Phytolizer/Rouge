@@ -30,7 +30,7 @@ public class Shader {
         }
     }
     
-    public int getShaderId() {
+    public int getId() {
         return shaderId;
     }
     
