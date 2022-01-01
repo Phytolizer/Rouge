@@ -4,7 +4,7 @@ import static org.lwjgl.opengl.GL33.*;
 
 public class Shader {
     private final int shaderId;
-
+    
     public Shader(String vertexSource, String fragmentSource) {
         int vertexId = glCreateShader(GL_VERTEX_SHADER);
         glShaderSource(vertexId, vertexSource);
@@ -34,5 +34,5 @@ public class Shader {
         return shaderId;
     }
     
-
+    
 }
