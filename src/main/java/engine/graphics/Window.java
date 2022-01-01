@@ -1,5 +1,6 @@
 package engine.graphics;
 
+import engine.Game;
 import engine.eventlisteners.*;
 import engine.graphics.internal.*;
 import engine.logic.Timer;
@@ -91,7 +92,7 @@ public class Window {
         this.timer = timer;
     }
     
-    public void run(QuadConsumer<Double, boolean[], double[], boolean[]> task) {
+    public void run(Game game) {
         System.out.println("Hello LWJGL" + Version.getVersion() + "!");
         
         GL.createCapabilities();
@@ -138,9 +139,9 @@ public class Window {
             double[] cursorXYArray = new double[]{mouseCursorPosListener.getXPos(),
                     mouseCursorPosListener.getYPos()};
             
-            task.accept(timer.tick(glfwGetTime()), keyListener.getAllKeyStates(),
+            game.runFrame(timer.tick(glfwGetTime()), keyListener.getAllKeyStates(),
                     cursorXYArray,
-                    mouseButtonListener.getAllButtonStates());
+                    mouseButtonListener.getAllButtonStates(), this);
             
             glfwSwapBuffers(windowHandle);
             glfwPollEvents();
