@@ -3,7 +3,6 @@ import engine.graphics.Window;
 import engine.logic.Entity;
 
 import static org.lwjgl.glfw.GLFW.*;
-import static org.lwjgl.glfw.GLFW.GLFW_KEY_S;
 
 public class Rouge implements Game {
     public Entity rougeTriangle = new Entity();
