@@ -2,7 +2,7 @@ package engine.graphics;
 
 import engine.Game;
 import engine.eventlisteners.*;
-import engine.graphics.internal.*;
+import engine.graphics.internal_utils.*;
 import engine.logic.Timer;
 import org.jetbrains.annotations.NotNull;
 import org.lwjgl.Version;
@@ -108,28 +108,25 @@ public class Window {
         
         windowShader = new Shader(vertexSource, fragmentSource);
         
-        float[] vertexArray = new float[]{
+        float[] vertexData = new float[]{
                 0, 0.5f, 1f, 1f, 1f, 1f, 1f,
                 -0.5f, -0.5f, 1f, 1f, 1f, 1f, 1f,
                 0.5f, -0.5f, 1f, 1f, 1f, 1f, 1f
         };
         
-        int positionSize = 3;
+        int coordSize = 3;
         int colorSize = 4;
-        int vertexSize = positionSize + colorSize;
-        
+
         int[] elementArray = new int[]{
                 0, 1, 2
         };
         
-        RenderUtils.VertexArray.init();
-        RenderUtils.VertexBuffer.init(vertexSize, positionSize, colorSize, 0, vertexArray);
-        RenderUtils.ElementBuffer.init(elementArray);
-        
-        glVertexAttribPointer(0, positionSize, GL_FLOAT, false, vertexSize * Float.BYTES, 0);
-        glVertexAttribPointer(1, colorSize, GL_FLOAT, false, vertexSize * Float.BYTES,
-                positionSize * Float.BYTES);
-        RenderUtils.VertexArray.enableAttribs();
+        RenderingState.VertexArray.init();
+        RenderingState.VertexBuffer.init(vertexData);
+        RenderingState.ElementBuffer.init(elementArray);
+
+        RenderingState.VertexArray.setAttribs(coordSize, colorSize, 0);
+        RenderingState.VertexArray.enableAttribs();
         
         glClearColor(1.0f, 0.0f, 0.0f, 0.0f);
         
@@ -156,8 +153,8 @@ public class Window {
     
     public void drawTriangle(float x, float y, float z) {
         glUseProgram(windowShader.getId());
-        glBindVertexArray(RenderUtils.getVaoId());
-        RenderUtils.VertexArray.enableAttribs();
+        glBindVertexArray(RenderingState.getVaoId());
+        RenderingState.VertexArray.enableAttribs();
         
         float[] newVertexArray = {
                 x, y + 0.5f, z, 1f, 1f, 1f, 1f,
@@ -166,10 +163,10 @@ public class Window {
         };
         
         glBufferSubData(GL_ARRAY_BUFFER, 0, newVertexArray);
-        glDrawElements(GL_TRIANGLES, RenderUtils.ElementBuffer.getElementArray().length,
+        glDrawElements(GL_TRIANGLES, RenderingState.ElementBuffer.getElementArray().length,
                 GL_UNSIGNED_INT, 0);
         
-        RenderUtils.VertexArray.disableAttribs();
+        RenderingState.VertexArray.disableAttribs();
         glBindVertexArray(0);
         glUseProgram(0);
     }

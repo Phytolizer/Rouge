@@ -1,4 +1,4 @@
-package engine.graphics.internal;
+package engine.graphics.internal_utils;
 
 import static org.lwjgl.opengl.GL33.*;
 

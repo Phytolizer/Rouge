@@ -2,9 +2,6 @@ import engine.eventlisteners.Mouse;
 import engine.graphics.Window;
 import engine.eventlisteners.KeyListener;
 import engine.logic.Timer;
-import engine.logic.Entity;
-
-import static org.lwjgl.glfw.GLFW.*;
 
 public class Main {
     public static void main(String[] args) {
