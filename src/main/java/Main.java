@@ -1,4 +1,5 @@
-import engine.eventlisteners.Mouse;
+import engine.eventlisteners.CursorPosListener;
+import engine.eventlisteners.MouseButtonListener;
 import engine.graphics.Window;
 import engine.eventlisteners.KeyListener;
 import engine.logic.Timer;
@@ -9,8 +10,8 @@ public class Main {
         var rouge = new Rouge();
     
         mainWindow.setTimer(new Timer());
-        mainWindow.setCursorPosListener(new Mouse.CursorPosListener());
-        mainWindow.setMouseButtonListener(new Mouse.ButtonListener());
+        mainWindow.setCursorPosListener(new CursorPosListener());
+        mainWindow.setMouseButtonListener(new MouseButtonListener());
         mainWindow.setKeyListener(new KeyListener());
         
         mainWindow.run(rouge);

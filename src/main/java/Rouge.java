@@ -1,6 +1,6 @@
 import engine.Game;
 import engine.graphics.Window;
-import engine.logic.Entity;
+import engine.entities.Entity;
 
 import static org.lwjgl.glfw.GLFW.*;
 

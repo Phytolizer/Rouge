@@ -33,8 +33,8 @@ public class Window {
     private final long windowHandle;
     private Shader windowShader = null;
     
-    private Mouse.CursorPosListener cursorPosListener;
-    private Mouse.ButtonListener mouseButtonListener;
+    private CursorPosListener cursorPosListener;
+    private MouseButtonListener mouseButtonListener;
     private KeyListener keyListener;
     private Timer timer;
 
@@ -87,7 +87,7 @@ public class Window {
      * CursorPosCallback events.
      * @param cursorPosListener CursorPosListener object
      */
-    public void setCursorPosListener(Mouse.CursorPosListener cursorPosListener) {
+    public void setCursorPosListener(CursorPosListener cursorPosListener) {
         glfwSetCursorPosCallback(windowHandle, cursorPosListener);
         this.cursorPosListener = cursorPosListener;
     }
@@ -95,9 +95,9 @@ public class Window {
     /**
      * Defines a mouse button listener to listen for
      * MouseButtonCallback events.
-     * @param mouseButtonListener ButtonListener object
+     * @param mouseButtonListener MouseButtonListener object
      */
-    public void setMouseButtonListener(Mouse.ButtonListener mouseButtonListener) {
+    public void setMouseButtonListener(MouseButtonListener mouseButtonListener) {
         glfwSetMouseButtonCallback(windowHandle, mouseButtonListener);
         this.mouseButtonListener = mouseButtonListener;
     }

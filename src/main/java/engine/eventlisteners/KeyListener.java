@@ -7,7 +7,7 @@ import static org.lwjgl.glfw.GLFW.*;
 
 /**
  * The {@code KeyListener} class is used to listen to
- * the GLFW key events and store the key states in its
+ * the GLFW key events and stores the key states in its
  * own internal state.
  */
 public class KeyListener implements GLFWKeyCallbackI {
