@@ -2,7 +2,7 @@ package engine.graphics;
 
 import engine.Game;
 import engine.eventlisteners.*;
-import engine.graphics.internal_utils.*;
+import engine.graphics.internal.*;
 import engine.logic.Timer;
 import org.jetbrains.annotations.NotNull;
 import org.lwjgl.Version;
@@ -24,15 +24,25 @@ import static org.lwjgl.opengl.GL33.*;
 import static org.lwjgl.system.MemoryStack.stackPush;
 import static org.lwjgl.system.MemoryUtil.NULL;
 
+/**
+ * The {@code Window} class represents a GLFW window
+ * and its instances will be where all the drawing
+ * and event listening will be done.
+ */
 public class Window {
     private final long windowHandle;
     private Shader windowShader = null;
     
-    private Mouse.CursorPosListener mouseCursorPosListener;
+    private Mouse.CursorPosListener cursorPosListener;
     private Mouse.ButtonListener mouseButtonListener;
     private KeyListener keyListener;
     private Timer timer;
-    
+
+    /**
+     * Will create a window, set its resolution,
+     * set the v-sync state,
+     * and some internal configuring.
+     */
     public Window() {
         GLFWErrorCallback.createPrint(System.err).set();
         
@@ -40,9 +50,9 @@ public class Window {
             throw new IllegalStateException("Unable to initialize GLFW");
         }
         
-        glfwDefaultWindowHints(); // optional, the current window hints are already the default
-        glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE); // the window will stay hidden after creation
-        glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE); // the window will be resizable
+        glfwDefaultWindowHints();
+        glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
+        glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
         
         windowHandle = glfwCreateWindow(1280, 720, "Rouge", NULL, NULL);
         if (windowHandle == NULL) {
@@ -68,30 +78,53 @@ public class Window {
         }
         
         glfwMakeContextCurrent(windowHandle);
-        // Enable v-sync
-        glfwSwapInterval(1);
+        glfwSwapInterval(1); // Enables v-sync
         glfwShowWindow(windowHandle);
     }
-    
-    public void setMouseCursorPosListener(Mouse.CursorPosListener mouseCursorPosListener) {
-        glfwSetCursorPosCallback(windowHandle, mouseCursorPosListener);
-        this.mouseCursorPosListener = mouseCursorPosListener;
+
+    /**
+     * Defines a cursor position listener to listen for
+     * CursorPosCallback events.
+     * @param cursorPosListener CursorPosListener object
+     */
+    public void setCursorPosListener(Mouse.CursorPosListener cursorPosListener) {
+        glfwSetCursorPosCallback(windowHandle, cursorPosListener);
+        this.cursorPosListener = cursorPosListener;
     }
-    
+
+    /**
+     * Defines a mouse button listener to listen for
+     * MouseButtonCallback events.
+     * @param mouseButtonListener ButtonListener object
+     */
     public void setMouseButtonListener(Mouse.ButtonListener mouseButtonListener) {
         glfwSetMouseButtonCallback(windowHandle, mouseButtonListener);
         this.mouseButtonListener = mouseButtonListener;
     }
-    
+
+    /**
+     * Defines a keyboard listener to listen for
+     * KeyCallback events.
+     * @param keyListener KeyListener object
+     */
     public void setKeyListener(KeyListener keyListener) {
         glfwSetKeyCallback(windowHandle, keyListener);
         this.keyListener = keyListener;
     }
-    
+
+    /**
+     * Defines a timer.
+     * @param timer Timer object
+     */
     public void setTimer(Timer timer) {
         this.timer = timer;
     }
-    
+
+    /**
+     * Runs a loop where all the game's logic
+     * will be contained.
+     * @param game Game object that will be put inside a loop
+     */
     public void run(Game game) {
         System.out.println("Hello LWJGL" + Version.getVersion() + "!");
         
@@ -135,8 +168,8 @@ public class Window {
         while (!glfwWindowShouldClose(windowHandle)) {
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // clear the framebuffer
             
-            double[] cursorXYArray = new double[]{mouseCursorPosListener.getXPos(),
-                    mouseCursorPosListener.getYPos()};
+            double[] cursorXYArray = new double[]{cursorPosListener.getXPos(),
+                    cursorPosListener.getYPos()};
             
             game.runFrame(timer.tick(glfwGetTime()), keyListener.getAllKeyStates(),
                     cursorXYArray,
@@ -159,9 +192,9 @@ public class Window {
         RenderingState.VertexArray.enableAttribs();
 
         float[] newVertexArray = {
-                x-0.5f, y+0.5f, z, 1f, 1f, 1f, 1f,  // top left
+                x-0.5f, y+0.5f, z, 1f, 1f, 1f, 1f,    // top left
                 x+0.5f, y+0.5f, z, 1f, 1f, 1f, 1f,   // top right
-                x-0.5f, y-0.5f, z, 1f, 1f, 1f, 1f, // bottom left
+                x-0.5f, y-0.5f, z, 1f, 1f, 1f, 1f,  // bottom left
                 x+0.5f, y-0.5f, z, 1f, 1f, 1f, 1f  // bottom right
         };
         

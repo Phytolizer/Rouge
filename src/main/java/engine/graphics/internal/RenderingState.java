@@ -1,11 +1,11 @@
-package engine.graphics.internal_utils;
+package engine.graphics.internal;
 
 import static org.lwjgl.opengl.GL33.*;
 
 /**
- * The {@code RenderingState} class works as an util for managing
- * the OpenGL global state, that being the reason for it being a
- * static class.
+ * The {@code RenderingState} class works as an util for abstracting
+ * away and managing the current openGL context's state, that being
+ * the reason for it being a static class.
  */
 public class RenderingState {
     private static int vaoId, vboId, eboId;
@@ -78,12 +78,20 @@ public class RenderingState {
             }
         }
 
+        /**
+         * Enables the attributes created on the
+         * setAttribs() method.
+         */
         public static void enableAttribs() {
             for (int i = 0; i < vapCount; i++) {
                 glEnableVertexAttribArray(i);
             }
         }
-        
+
+        /**
+         * Disables the attributes created on the
+         * setAttribs( method.
+         */
         public static void disableAttribs() {
             for (int i = 0; i < vapCount; i++) {
                 glDisableVertexAttribArray(i);

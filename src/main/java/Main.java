@@ -9,7 +9,7 @@ public class Main {
         var rouge = new Rouge();
     
         mainWindow.setTimer(new Timer());
-        mainWindow.setMouseCursorPosListener(new Mouse.CursorPosListener());
+        mainWindow.setCursorPosListener(new Mouse.CursorPosListener());
         mainWindow.setMouseButtonListener(new Mouse.ButtonListener());
         mainWindow.setKeyListener(new KeyListener());
         
