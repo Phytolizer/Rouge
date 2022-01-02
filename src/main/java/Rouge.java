@@ -27,6 +27,6 @@ public class Rouge implements Game {
         float x = rougeTriangle.getX();
         float y = rougeTriangle.getY();
         
-        window.drawTriangle(x, y, 0);
+        window.drawRectangle(x, y, 0);
     }
 }

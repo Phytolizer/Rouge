@@ -109,16 +109,18 @@ public class Window {
         windowShader = new Shader(vertexSource, fragmentSource);
         
         float[] vertexData = new float[]{
-                0, 0.5f, 1f, 1f, 1f, 1f, 1f,
-                -0.5f, -0.5f, 1f, 1f, 1f, 1f, 1f,
-                0.5f, -0.5f, 1f, 1f, 1f, 1f, 1f
+                -0.5f, 0.5f, 1f, 1f, 1f, 1f, 1f,  // top left
+                0.5f, 0.5f, 1f, 1f, 1f, 1f, 1f,   // top right
+                -0.5f, -0.5f, 1f, 1f, 1f, 1f, 1f, // bottom left
+                0.5f, -0.5f, 1f, 1f, 1f, 1f, 1f  // bottom right
         };
         
         int coordSize = 3;
         int colorSize = 4;
 
         int[] elementArray = new int[]{
-                0, 1, 2
+                0, 1, 2,
+                2, 1, 3
         };
         
         RenderingState.VertexArray.init();
@@ -151,15 +153,16 @@ public class Window {
         Objects.requireNonNull(glfwSetErrorCallback(null)).free();
     }
     
-    public void drawTriangle(float x, float y, float z) {
+    public void drawRectangle(float x, float y, float z) {
         glUseProgram(windowShader.getId());
         glBindVertexArray(RenderingState.getVaoId());
         RenderingState.VertexArray.enableAttribs();
-        
+
         float[] newVertexArray = {
-                x, y + 0.5f, z, 1f, 1f, 1f, 1f,
-                x - 0.5f, y - 0.5f, z, 1f, 1f, 1f, 1f,
-                x + 0.5f, y - 0.5f, z, 1f, 1f, 1f, 1f
+                x-0.5f, y+0.5f, z, 1f, 1f, 1f, 1f,  // top left
+                x+0.5f, y+0.5f, z, 1f, 1f, 1f, 1f,   // top right
+                x-0.5f, y-0.5f, z, 1f, 1f, 1f, 1f, // bottom left
+                x+0.5f, y-0.5f, z, 1f, 1f, 1f, 1f  // bottom right
         };
         
         glBufferSubData(GL_ARRAY_BUFFER, 0, newVertexArray);
