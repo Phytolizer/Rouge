@@ -1,5 +1,10 @@
 package engine.core;
 
+/**
+ * The {@code Position} class is used to implement
+ * 3-dimensional position coordinates, all the values
+ * are in floats instead of doubles to reduce overhead
+ */
 public class Position {
     private float xPos;
     private float yPos;
@@ -21,6 +26,18 @@ public class Position {
 
     public float getZ() {
         return zPos;
+    }
+
+    public void setX(float x) {
+        this.xPos = x;
+    }
+
+    public void setY(float y) {
+        this.yPos = y;
+    }
+
+    public void setZ(float z) {
+        this.zPos = z;
     }
 
     public void increaseX(float inc) {

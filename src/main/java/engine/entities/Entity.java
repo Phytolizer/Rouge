@@ -1,6 +1,10 @@
 package engine.entities;
 import engine.core.Position;
 
+/**
+ * the {@code Entity} class is used for the creation
+ * of in-game objects, for example players, items, etc.
+ */
 public class Entity {
     public final Position position;
 

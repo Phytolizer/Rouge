@@ -3,7 +3,8 @@ package engine.graphics;
 import engine.Game;
 import engine.eventlisteners.*;
 import engine.graphics.internal.*;
-import engine.logic.Timer;
+import engine.logic.*;
+
 import org.jetbrains.annotations.NotNull;
 import org.lwjgl.Version;
 import org.lwjgl.glfw.GLFWErrorCallback;
@@ -36,6 +37,8 @@ public class Window {
     private CursorPosListener cursorPosListener;
     private MouseButtonListener mouseButtonListener;
     private KeyListener keyListener;
+
+    private Mouse mouse;
     private Timer timer;
 
     /**
@@ -164,16 +167,16 @@ public class Window {
         RenderingState.VertexArray.enableAttribs();
         
         glClearColor(1.0f, 0.0f, 0.0f, 0.0f);
-        
+
+        mouse = new Mouse();
+
         while (!glfwWindowShouldClose(windowHandle)) {
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // clear the framebuffer
-            
-            double[] cursorXYArray = new double[]{cursorPosListener.getXPos(),
-                    cursorPosListener.getYPos()};
-            
+
+            mouse.setButtonStates(mouseButtonListener.getAllButtonStates());
+
             game.runFrame(timer.tick(glfwGetTime()), keyListener.getAllKeyStates(),
-                    cursorXYArray,
-                    mouseButtonListener.getAllButtonStates(), this);
+                    mouse, this);
             
             glfwSwapBuffers(windowHandle);
             glfwPollEvents();
