@@ -12,20 +12,20 @@ public class Rouge implements Game {
         float timeConstant = (float) ((1 / deltaTime) / 60);
         
         if (keyStates[GLFW_KEY_D]) {
-            rougeTriangle.increaseX(0.01f * timeConstant);
+            rougeTriangle.position.increaseX(0.01f * timeConstant);
         }
         if (keyStates[GLFW_KEY_A]) {
-            rougeTriangle.increaseX(-0.01f * timeConstant);
+            rougeTriangle.position.increaseX(-0.01f * timeConstant);
         }
         if (keyStates[GLFW_KEY_W]) {
-            rougeTriangle.increaseY(0.01f * timeConstant);
+            rougeTriangle.position.increaseY(0.01f * timeConstant);
         }
         if (keyStates[GLFW_KEY_S]) {
-            rougeTriangle.increaseY(-0.01f * timeConstant);
+            rougeTriangle.position.increaseY(-0.01f * timeConstant);
         }
         
-        float x = rougeTriangle.getX();
-        float y = rougeTriangle.getY();
+        float x = rougeTriangle.position.getX();
+        float y = rougeTriangle.position.getY();
         
         window.drawRectangle(x, y, 0);
     }
