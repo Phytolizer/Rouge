@@ -5,6 +5,7 @@ import engine.eventlisteners.*;
 import engine.logic.*;
 
 import org.jetbrains.annotations.NotNull;
+import org.lwjgl.BufferUtils;
 import org.lwjgl.Version;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.glfw.GLFWVidMode;
@@ -12,6 +13,7 @@ import org.lwjgl.opengl.GL;
 import org.lwjgl.system.MemoryStack;
 
 import java.io.IOException;
+import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -39,6 +41,7 @@ public class Window {
 
     private Mouse mouse;
     private Keyboard keyboard;
+    private Camera camera;
     private Timer timer;
 
     /**
@@ -62,8 +65,10 @@ public class Window {
             throw new RuntimeException("Failed to create the GLFW window");
         }
         
-        glfwSetWindowSizeCallback(windowHandle, (window, x, y) -> glViewport(0, 0, x, y));
-        
+        glfwSetWindowSizeCallback(windowHandle, (window, x, y) -> {
+            glViewport(0, 0, x, y);
+        });
+
         try (MemoryStack stack = stackPush()) {
             IntBuffer pWidth = stack.mallocInt(1); // int*
             IntBuffer pHeight = stack.mallocInt(1); // int*
@@ -141,9 +146,10 @@ public class Window {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        
+
         windowShader = new Shader(vertexSource, fragmentSource);
-        
+        camera = new Camera();
+
         float[] vertexData = new float[]{
                 -0.5f, 0.5f, 1f, 1f, 1f, 1f, 1f,  // top left
                 0.5f, 0.5f, 1f, 1f, 1f, 1f, 1f,   // top right
@@ -165,7 +171,7 @@ public class Window {
 
         RenderingState.VertexArray.setAttribs(coordSize, colorSize, 0);
         RenderingState.VertexArray.enableAttribs();
-        
+
         glClearColor(1.0f, 0.0f, 0.0f, 0.0f);
 
         mouse = new Mouse();
@@ -195,6 +201,15 @@ public class Window {
     
     public void drawRectangle(float x, float y, float z) {
         glUseProgram(windowShader.getId());
+
+        FloatBuffer viewBuffer = BufferUtils.createFloatBuffer(16);
+        FloatBuffer projBuffer = BufferUtils.createFloatBuffer(16);
+        camera.getViewMatrix().get(viewBuffer);
+        camera.getProjMatrix().get(projBuffer);
+
+        glUniformMatrix4fv(windowShader.getUniformLocation("viewMatrix"), false, viewBuffer);
+        glUniformMatrix4fv(windowShader.getUniformLocation("projMatrix"), false, projBuffer);
+
         glBindVertexArray(RenderingState.getVaoId());
         RenderingState.VertexArray.enableAttribs();
 

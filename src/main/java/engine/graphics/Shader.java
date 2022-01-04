@@ -33,6 +33,10 @@ class Shader {
     int getId() {
         return shaderId;
     }
+
+    int getUniformLocation(String var) {
+        return glGetUniformLocation(shaderId, var);
+    }
     
     
 }

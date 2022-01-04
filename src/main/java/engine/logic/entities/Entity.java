@@ -1,4 +1,4 @@
-package engine.entities;
+package engine.logic.entities;
 import engine.core.Position;
 
 /**

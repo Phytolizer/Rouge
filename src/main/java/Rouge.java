@@ -1,6 +1,6 @@
 import engine.Game;
 import engine.graphics.Window;
-import engine.entities.Entity;
+import engine.logic.entities.Entity;
 import engine.logic.Keyboard;
 import engine.logic.Mouse;
 
@@ -25,10 +25,17 @@ public class Rouge extends Game {
         if (keyboard.getKeyPressed(GLFW_KEY_S)) {
             rougeTriangle.position.increaseY(-0.01f * timeConstant);
         }
+        if(keyboard.getKeyPressed(GLFW_KEY_UP)) {
+            rougeTriangle.position.increaseZ(0.01f * timeConstant);
+        }
+        if(keyboard.getKeyPressed(GLFW_KEY_DOWN)) {
+            rougeTriangle.position.increaseZ(-0.01f * timeConstant);
+        }
         
         float x = rougeTriangle.position.getX();
         float y = rougeTriangle.position.getY();
+        float z = rougeTriangle.position.getZ();
         
-        window.drawRectangle(x, y, 0);
+        window.drawRectangle(x, y, z);
     }
 }
