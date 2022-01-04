@@ -39,6 +39,7 @@ public class Window {
     private KeyListener keyListener;
 
     private Mouse mouse;
+    private Keyboard keyboard;
     private Timer timer;
 
     /**
@@ -169,14 +170,18 @@ public class Window {
         glClearColor(1.0f, 0.0f, 0.0f, 0.0f);
 
         mouse = new Mouse();
+        keyboard = new Keyboard();
 
         while (!glfwWindowShouldClose(windowHandle)) {
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // clear the framebuffer
 
+            mouse.cursorPosition.setX(cursorPosListener.getXPos());
+            mouse.cursorPosition.setY(cursorPosListener.getYPos());
             mouse.setButtonStates(mouseButtonListener.getAllButtonStates());
 
-            game.runFrame(timer.tick(glfwGetTime()), keyListener.getAllKeyStates(),
-                    mouse, this);
+            keyboard.setKeyStates(keyListener.getAllKeyStates());
+
+            game.runFrame(timer.tick(glfwGetTime()), keyboard, mouse, this);
             
             glfwSwapBuffers(windowHandle);
             glfwPollEvents();

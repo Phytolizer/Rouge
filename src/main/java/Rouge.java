@@ -1,6 +1,7 @@
 import engine.Game;
 import engine.graphics.Window;
 import engine.entities.Entity;
+import engine.logic.Keyboard;
 import engine.logic.Mouse;
 
 import static org.lwjgl.glfw.GLFW.*;
@@ -9,19 +10,19 @@ public class Rouge implements Game {
     public Entity rougeTriangle = new Entity();
     
     @Override
-    public void runFrame(double deltaTime, boolean[] keyStates, Mouse mouse, Window window) {
+    public void runFrame(double deltaTime, Keyboard keyboard, Mouse mouse, Window window) {
         float timeConstant = (float) ((1 / deltaTime) / 60);
         
-        if (keyStates[GLFW_KEY_D]) {
+        if (keyboard.getKeyPressed(GLFW_KEY_D)) {
             rougeTriangle.position.increaseX(0.01f * timeConstant);
         }
-        if (keyStates[GLFW_KEY_A]) {
+        if (keyboard.getKeyPressed(GLFW_KEY_A)) {
             rougeTriangle.position.increaseX(-0.01f * timeConstant);
         }
-        if (keyStates[GLFW_KEY_W]) {
+        if (keyboard.getKeyPressed(GLFW_KEY_W))   {
             rougeTriangle.position.increaseY(0.01f * timeConstant);
         }
-        if (keyStates[GLFW_KEY_S]) {
+        if (keyboard.getKeyPressed(GLFW_KEY_S)) {
             rougeTriangle.position.increaseY(-0.01f * timeConstant);
         }
         

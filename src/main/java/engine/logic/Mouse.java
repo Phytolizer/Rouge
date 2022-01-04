@@ -4,7 +4,7 @@ import engine.core.Position;
 /**
  * The {@code Mouse} class is an abstraction for representing
  * the state of the users mouse, this is separate from the mouse
- * listeners for simplicity's sake.
+ * listeners for the sake of simplicity.
  */
 public class Mouse {
     public final Position cursorPosition;

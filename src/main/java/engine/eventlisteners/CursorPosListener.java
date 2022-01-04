@@ -8,23 +8,23 @@ import org.lwjgl.glfw.GLFWCursorPosCallbackI;
  * state.
  */
 public class CursorPosListener implements GLFWCursorPosCallbackI {
-    private double xPos;
-    private double yPos;
+    private float xPos;
+    private float yPos;
 
     public CursorPosListener() {
     }
 
     @Override
     public void invoke(long window, double xPos, double yPos) {
-        this.xPos = xPos;
-        this.yPos = yPos;
+        this.xPos = (float) xPos;
+        this.yPos = (float) yPos;
     }
 
-    public double getXPos() {
+    public float getXPos() {
         return xPos;
     }
 
-    public double getYPos() {
+    public float getYPos() {
         return yPos;
     }
 }
