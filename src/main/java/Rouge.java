@@ -6,7 +6,7 @@ import engine.logic.Mouse;
 
 import static org.lwjgl.glfw.GLFW.*;
 
-public class Rouge implements Game {
+public class Rouge extends Game {
     public Entity rougeTriangle = new Entity();
     
     @Override
