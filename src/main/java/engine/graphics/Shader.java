@@ -1,11 +1,11 @@
-package engine.graphics.internal;
+package engine.graphics;
 
 import static org.lwjgl.opengl.GL33.*;
 
-public class Shader {
+class Shader {
     private final int shaderId;
     
-    public Shader(String vertexSource, String fragmentSource) {
+    Shader(String vertexSource, String fragmentSource) {
         int vertexId = glCreateShader(GL_VERTEX_SHADER);
         glShaderSource(vertexId, vertexSource);
         glCompileShader(vertexId);
@@ -30,7 +30,7 @@ public class Shader {
         }
     }
     
-    public int getId() {
+    int getId() {
         return shaderId;
     }
     

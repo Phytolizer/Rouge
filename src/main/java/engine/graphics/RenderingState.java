@@ -1,4 +1,4 @@
-package engine.graphics.internal;
+package engine.graphics;
 
 import static org.lwjgl.opengl.GL33.*;
 
@@ -7,7 +7,7 @@ import static org.lwjgl.opengl.GL33.*;
  * away and managing the current openGL context's state, that being
  * the reason for it being a static class.
  */
-public class RenderingState {
+class RenderingState {
     private static int vaoId, vboId, eboId;
     private static int vapCount;
 
@@ -27,13 +27,13 @@ public class RenderingState {
      * The {@code VertexArray} class abstracts away the OpenGL
      * Rendering's pipeline VAO, or Vertex Array Object.
      */
-    public static class VertexArray {
+    static class VertexArray {
 
         /**
          * Creates a VAO ID and binds it to the current OpenGL Context,
          * needs to be called before the VBO and EBO.
          */
-        public static void init() {
+        static void init() {
             vaoId = glGenVertexArrays();
             glBindVertexArray(vaoId);
 
@@ -51,7 +51,7 @@ public class RenderingState {
          * @param colorSize Size of the color attribute in the number of floats.
          * @param texCoordSize Size of the texture coordinates in the number of floats.
          */
-        public static void setAttribs(int coordSize, int colorSize, int texCoordSize) {
+        static void setAttribs(int coordSize, int colorSize, int texCoordSize) {
             int vertexSize = (coordSize + colorSize) * Float.BYTES;
 
             int i = 0;
@@ -82,7 +82,7 @@ public class RenderingState {
          * Enables the attributes created on the
          * setAttribs() method.
          */
-        public static void enableAttribs() {
+        static void enableAttribs() {
             for (int i = 0; i < vapCount; i++) {
                 glEnableVertexAttribArray(i);
             }
@@ -92,7 +92,7 @@ public class RenderingState {
          * Disables the attributes created on the
          * setAttribs( method.
          */
-        public static void disableAttribs() {
+        static void disableAttribs() {
             for (int i = 0; i < vapCount; i++) {
                 glDisableVertexAttribArray(i);
             }
@@ -103,13 +103,13 @@ public class RenderingState {
      * The {@code VertexBuffer} class abstracts away the OpenGL
      * Rendering's pipeline VBO, or Vertex Array Object.
      */
-    public static class VertexBuffer {
+    static class VertexBuffer {
 
         /**
          * Creates a VBO ID, binds it to the current OpenGL Context and
          * uploads the vertex data to the buffer.
          */
-        public static void init(float[] vertexData) {
+        static void init(float[] vertexData) {
             vboId = glGenBuffers();
             
             glBindBuffer(GL_ARRAY_BUFFER, vboId);
@@ -125,7 +125,7 @@ public class RenderingState {
      * The {@code ElementBuffer} class abstracts away the OpenGL
      * Rendering's pipeline EBO, or Element Buffer Object.
      */
-    public static class ElementBuffer {
+    static class ElementBuffer {
         private static int[] elementArray;
 
         /**
@@ -133,7 +133,7 @@ public class RenderingState {
          * and uploads the data to the required buffer.
          * needs to be called after the VAO and VBO.
          */
-        public static void init(int[] aElementArray) {
+        static void init(int[] aElementArray) {
             elementArray = aElementArray;
             eboId = glGenBuffers();
             
@@ -148,9 +148,8 @@ public class RenderingState {
         /**
          * @return An array with the vertices in the needed order.
          */
-        public static int[] getElementArray() {
+        static int[] getElementArray() {
             return elementArray;
         }
-        
     }
 }

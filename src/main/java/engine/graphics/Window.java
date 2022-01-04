@@ -2,7 +2,6 @@ package engine.graphics;
 
 import engine.Game;
 import engine.eventlisteners.*;
-import engine.graphics.internal.*;
 import engine.logic.*;
 
 import org.jetbrains.annotations.NotNull;
