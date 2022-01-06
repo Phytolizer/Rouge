@@ -1,9 +1,12 @@
 package engine.graphics;
 
 import engine.Game;
+import engine.core.Position;
 import engine.eventlisteners.*;
 import engine.logic.*;
 
+import engine.logic.entities.Entity;
+import engine.logic.entities.Rectangle;
 import org.jetbrains.annotations.NotNull;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.Version;
@@ -34,6 +37,9 @@ import static org.lwjgl.system.MemoryUtil.NULL;
 public class Window {
     private final long windowHandle;
     private Shader windowShader = null;
+
+    private FloatBuffer projectionBuffer;
+    private FloatBuffer viewBuffer;
     
     private CursorPosListener cursorPosListener;
     private MouseButtonListener mouseButtonListener;
@@ -65,9 +71,7 @@ public class Window {
             throw new RuntimeException("Failed to create the GLFW window");
         }
         
-        glfwSetWindowSizeCallback(windowHandle, (window, x, y) -> {
-            glViewport(0, 0, x, y);
-        });
+        glfwSetWindowSizeCallback(windowHandle, (window, x, y) -> glViewport(0, 0, x, y));
 
         try (MemoryStack stack = stackPush()) {
             IntBuffer pWidth = stack.mallocInt(1); // int*
@@ -150,6 +154,9 @@ public class Window {
         windowShader = new Shader(vertexSource, fragmentSource);
         camera = new Camera();
 
+        projectionBuffer = BufferUtils.createFloatBuffer(16);
+        viewBuffer = BufferUtils.createFloatBuffer(16);
+
         float[] vertexData = new float[]{
                 -0.5f, 0.5f, 1f, 1f, 1f, 1f, 1f,  // top left
                 0.5f, 0.5f, 1f, 1f, 1f, 1f, 1f,   // top right
@@ -180,14 +187,28 @@ public class Window {
         while (!glfwWindowShouldClose(windowHandle)) {
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // clear the framebuffer
 
+            glUseProgram(windowShader.getId());
+
+            camera.getViewMatrix().get(viewBuffer);
+            camera.getProjMatrix().get(projectionBuffer);
+
+            glUniformMatrix4fv(windowShader.getUniformLocation("viewMatrix"), false, viewBuffer);
+            glUniformMatrix4fv(windowShader.getUniformLocation("projMatrix"), false, projectionBuffer);
+
+            glBindVertexArray(RenderingState.getVaoId());
+            RenderingState.VertexArray.enableAttribs();
+
             mouse.cursorPosition.setX(cursorPosListener.getXPos());
             mouse.cursorPosition.setY(cursorPosListener.getYPos());
             mouse.setButtonStates(mouseButtonListener.getAllButtonStates());
-
             keyboard.setKeyStates(keyListener.getAllKeyStates());
 
             game.runFrame(timer.tick(glfwGetTime()), keyboard, mouse, this);
-            
+
+            RenderingState.VertexArray.disableAttribs();
+            glBindVertexArray(0);
+            glUseProgram(0);
+
             glfwSwapBuffers(windowHandle);
             glfwPollEvents();
         }
@@ -199,34 +220,24 @@ public class Window {
         Objects.requireNonNull(glfwSetErrorCallback(null)).free();
     }
     
-    public void drawRectangle(float x, float y, float z) {
-        glUseProgram(windowShader.getId());
+    public void draw(Entity entity) {
+        if(entity instanceof Rectangle) {
+            Position position = entity.getPosition();
+            float x = position.getX();
+            float y = position.getY();
+            float z = position.getZ();
 
-        FloatBuffer viewBuffer = BufferUtils.createFloatBuffer(16);
-        FloatBuffer projBuffer = BufferUtils.createFloatBuffer(16);
-        camera.getViewMatrix().get(viewBuffer);
-        camera.getProjMatrix().get(projBuffer);
+            float[] newVertexArray = {
+                    x - 0.5f, y + 0.5f, z, 1f, 1f, 1f, 1f,    // top left
+                    x + 0.5f, y + 0.5f, z, 1f, 1f, 1f, 1f,   // top right
+                    x - 0.5f, y - 0.5f, z, 1f, 1f, 1f, 1f,  // bottom left
+                    x + 0.5f, y - 0.5f, z, 1f, 1f, 1f, 1f  // bottom right
+            };
 
-        glUniformMatrix4fv(windowShader.getUniformLocation("viewMatrix"), false, viewBuffer);
-        glUniformMatrix4fv(windowShader.getUniformLocation("projMatrix"), false, projBuffer);
-
-        glBindVertexArray(RenderingState.getVaoId());
-        RenderingState.VertexArray.enableAttribs();
-
-        float[] newVertexArray = {
-                x-0.5f, y+0.5f, z, 1f, 1f, 1f, 1f,    // top left
-                x+0.5f, y+0.5f, z, 1f, 1f, 1f, 1f,   // top right
-                x-0.5f, y-0.5f, z, 1f, 1f, 1f, 1f,  // bottom left
-                x+0.5f, y-0.5f, z, 1f, 1f, 1f, 1f  // bottom right
-        };
-        
-        glBufferSubData(GL_ARRAY_BUFFER, 0, newVertexArray);
-        glDrawElements(GL_TRIANGLES, RenderingState.ElementBuffer.getElementArray().length,
-                GL_UNSIGNED_INT, 0);
-        
-        RenderingState.VertexArray.disableAttribs();
-        glBindVertexArray(0);
-        glUseProgram(0);
+            glBufferSubData(GL_ARRAY_BUFFER, 0, newVertexArray);
+            glDrawElements(GL_TRIANGLES, RenderingState.ElementBuffer.getElementArray().length,
+                    GL_UNSIGNED_INT, 0);
+        }
     }
     
     private static @NotNull String readEntireFile(String filename) throws IOException {

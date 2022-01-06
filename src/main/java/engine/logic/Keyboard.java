@@ -1,5 +1,4 @@
 package engine.logic;
-import static org.lwjgl.glfw.GLFW.*;
 
 /**
  * The {@code Keyboard} class is an abstraction for representing

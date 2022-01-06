@@ -6,10 +6,26 @@ import engine.core.Position;
  * of in-game objects, for example players, items, etc.
  */
 public class Entity {
-    public final Position position;
+    private final Position position;
 
-    public Entity() {
-        position = new Position(0f, 0f, 0f);
+    public Entity(float x, float y, float z) {
+        position = new Position(x, y, z);
+    }
+
+    public void moveBy(float xInc, float yInc, float zInc) {
+        this.position.increaseX(xInc);
+        this.position.increaseY(yInc);
+        this.position.increaseZ(zInc);
+    }
+
+    public void moveTo(float x, float y, float z) {
+        this.position.setX(x);
+        this.position.setY(y);
+        this.position.setZ(z);
+    }
+
+    public Position getPosition() {
+        return this.position;
     }
 }
 
