@@ -8,7 +8,7 @@ import engine.logic.entities.Rectangle;
 import static org.lwjgl.glfw.GLFW.*;
 
 public class Rouge extends Game {
-    public Entity rougeRectangle = new Rectangle(0.1f, 0.1f, 0f, 0f, 0f);
+    public Rectangle rougeRectangle = new Rectangle(0.1f, 0.1f, 0f, 0f, 0f);
     
     @Override
     public void runFrame(double deltaTime, Keyboard keyboard, Mouse mouse, Window window) {
