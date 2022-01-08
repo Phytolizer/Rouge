@@ -3,20 +3,21 @@ package engine;
 import engine.internal.RenderingState;
 import engine.logic.entities.Rectangle;
 
-import java.util.ArrayList;
+import java.util.ArrayDeque;
+
 import static org.lwjgl.opengl.GL33.*;
 
 public class Drawer {
     private final Window window;
-    private final ArrayList<Runnable> functionBatch;
+    private final ArrayDeque<Runnable> functionBatch;
 
     public Drawer(Window aWindow) {
         this.window = aWindow;
-        functionBatch = new ArrayList<>();
+        functionBatch = new ArrayDeque<>();
     }
 
     public void update() {
-        window.addDrawFunctionBatch((ArrayList<Runnable>) functionBatch.clone());
+        window.addDrawFunctionBatch(functionBatch.clone());
         functionBatch.clear();
     }
 

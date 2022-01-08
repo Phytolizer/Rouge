@@ -5,8 +5,8 @@ import engine.eventlisteners.*;
 import engine.graphics.Camera;
 import engine.internal.RenderingState;
 import engine.internal.Shader;
-import engine.logic.*;
 
+import engine.logic.Timer;
 import org.jetbrains.annotations.NotNull;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.glfw.GLFWErrorCallback;
@@ -20,9 +20,7 @@ import java.nio.IntBuffer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Objects;
-import java.util.Queue;
+import java.util.*;
 import java.util.concurrent.ArrayBlockingQueue;
 
 import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
@@ -50,7 +48,7 @@ public class Window {
     private Camera camera;
     private Timer timer;
 
-    private Queue<ArrayList<Runnable>> functionBatchQueue;
+    private Queue<Deque<Runnable>> functionBatchQueue;
 
     /**
      * Will create a window, set its resolution,
@@ -176,7 +174,7 @@ public class Window {
         this.timer = timer;
     }
 
-    protected void addDrawFunctionBatch(ArrayList<Runnable> functionBatch) {
+    protected void addDrawFunctionBatch(Deque<Runnable> functionBatch) {
         functionBatchQueue.add(functionBatch);
     }
 
@@ -223,7 +221,10 @@ public class Window {
         RenderingState.VertexArray.enableAttribs();
 
         var functionBatch = functionBatchQueue.poll();
-        for(var function : functionBatch) function.run();
+        var batchIterator = functionBatch.iterator();
+        while(batchIterator.hasNext()) {
+            batchIterator.next().run();
+        }
 
         RenderingState.VertexArray.disableAttribs();
         glBindVertexArray(0);
