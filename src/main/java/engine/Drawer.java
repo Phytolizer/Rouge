@@ -4,10 +4,7 @@ import engine.internal.RenderingState;
 import engine.logic.entities.Rectangle;
 
 import java.util.ArrayList;
-
-import static org.lwjgl.opengl.GL11.*;
-import static org.lwjgl.opengl.GL15.GL_ARRAY_BUFFER;
-import static org.lwjgl.opengl.GL15.glBufferSubData;
+import static org.lwjgl.opengl.GL33.*;
 
 public class Drawer {
     private final Window window;
