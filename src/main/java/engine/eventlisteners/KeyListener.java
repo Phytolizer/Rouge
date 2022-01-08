@@ -26,8 +26,8 @@ public class KeyListener implements GLFWKeyCallbackI {
         }
     }
     
-    public boolean[] getAllKeyStates() {
-        return keyStates;
+    public boolean getKeyState(int key) {
+        return keyStates[key];
     }
 }
 

@@ -8,8 +8,12 @@ import engine.core.Position;
 public class Entity {
     private final Position position;
 
+    public Entity(Position aPosition) {
+        this.position = (Position) aPosition.clone();
+    }
+
     public Entity(float x, float y, float z) {
-        position = new Position(x, y, z);
+        this.position = new Position(x, y, z);
     }
 
     public void moveBy(float xInc, float yInc, float zInc) {

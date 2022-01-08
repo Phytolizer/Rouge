@@ -1,6 +1,6 @@
 package engine.core;
 
-public class Size {
+public class Size implements Cloneable {
     private float width;
     private float height;
 
@@ -23,5 +23,13 @@ public class Size {
 
     public float getHeight() {
         return height;
+    }
+
+    public Object clone() {
+        try {
+            return super.clone();
+        } catch(CloneNotSupportedException e) {
+            return new Size(0f, 0f);
+        }
     }
 }

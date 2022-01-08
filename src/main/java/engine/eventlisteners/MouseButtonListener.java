@@ -26,7 +26,7 @@ public class MouseButtonListener implements GLFWMouseButtonCallbackI {
         }
     }
 
-    public boolean[] getAllButtonStates() {
-        return this.buttonStates;
+    public boolean getButtonState(int button) {
+        return buttonStates[button];
     }
 }

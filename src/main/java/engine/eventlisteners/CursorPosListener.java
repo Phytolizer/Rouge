@@ -1,5 +1,6 @@
 package engine.eventlisteners;
 
+import engine.core.Position;
 import org.lwjgl.glfw.GLFWCursorPosCallbackI;
 
 /**
@@ -8,23 +9,20 @@ import org.lwjgl.glfw.GLFWCursorPosCallbackI;
  * state.
  */
 public class CursorPosListener implements GLFWCursorPosCallbackI {
-    private float xPos;
-    private float yPos;
+    private final Position position;
 
     public CursorPosListener() {
+        position = new Position(0f, 0f, 0f);
     }
 
     @Override
     public void invoke(long window, double xPos, double yPos) {
-        this.xPos = (float) xPos;
-        this.yPos = (float) yPos;
+        position.setX((float) xPos);
+        position.setY((float) yPos);
     }
 
-    public float getXPos() {
-        return xPos;
-    }
 
-    public float getYPos() {
-        return yPos;
+    public Position getPosition() {
+        return (Position) position.clone();
     }
 }

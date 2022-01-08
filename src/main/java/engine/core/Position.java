@@ -5,7 +5,7 @@ package engine.core;
  * 3-dimensional position coordinates, all the values
  * are in floats instead of doubles to reduce overhead
  */
-public class Position {
+public class Position implements Cloneable {
     private float xPos;
     private float yPos;
     private float zPos;
@@ -50,5 +50,13 @@ public class Position {
 
     public void increaseZ(float inc) {
         this.zPos += inc;
+    }
+
+    public Object clone() {
+        try {
+            return super.clone();
+        } catch(CloneNotSupportedException e) {
+            return new Position(0f, 0f, 0f);
+        }
     }
 }

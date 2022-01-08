@@ -1,15 +1,14 @@
-package engine.graphics;
+package engine;
 
-import engine.Game;
 import engine.core.Position;
 import engine.eventlisteners.*;
+import engine.graphics.Camera;
+import engine.internal.RenderingState;
+import engine.internal.Shader;
 import engine.logic.*;
 
-import engine.logic.entities.Entity;
-import engine.logic.entities.Rectangle;
 import org.jetbrains.annotations.NotNull;
 import org.lwjgl.BufferUtils;
-import org.lwjgl.Version;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.opengl.GL;
@@ -21,7 +20,10 @@ import java.nio.IntBuffer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Objects;
+import java.util.Queue;
+import java.util.concurrent.ArrayBlockingQueue;
 
 import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
 import static org.lwjgl.glfw.GLFW.*;
@@ -36,7 +38,7 @@ import static org.lwjgl.system.MemoryUtil.NULL;
  */
 public class Window {
     private final long windowHandle;
-    private Shader windowShader = null;
+    private Shader windowShader;
 
     private FloatBuffer projectionBuffer;
     private FloatBuffer viewBuffer;
@@ -45,10 +47,10 @@ public class Window {
     private MouseButtonListener mouseButtonListener;
     private KeyListener keyListener;
 
-    private Mouse mouse;
-    private Keyboard keyboard;
     private Camera camera;
     private Timer timer;
+
+    private Queue<ArrayList<Runnable>> functionBatchQueue;
 
     /**
      * Will create a window, set its resolution,
@@ -92,6 +94,48 @@ public class Window {
         glfwMakeContextCurrent(windowHandle);
         glfwSwapInterval(1); // Enables v-sync
         glfwShowWindow(windowHandle);
+        GL.createCapabilities();
+
+        functionBatchQueue = new ArrayBlockingQueue<>(10);
+
+        String vertexSource;
+        String fragmentSource;
+        try {
+            vertexSource = readEntireFile("assets/shaders/vertex.glsl");
+            fragmentSource = readEntireFile("assets/shaders/fragment.glsl");
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        windowShader = new Shader(vertexSource, fragmentSource);
+        camera = new Camera();
+
+        projectionBuffer = BufferUtils.createFloatBuffer(16);
+        viewBuffer = BufferUtils.createFloatBuffer(16);
+
+        float[] vertexData = new float[]{
+                -0.5f, 0.5f, 1f, 1f, 1f, 1f, 1f,    // top left
+                0.5f, 0.5f, 1f, 1f, 1f, 1f, 1f,    // top right
+                -0.5f, -0.5f, 1f, 1f, 1f, 1f, 1f, // bottom left
+                0.5f, -0.5f, 1f, 1f, 1f, 1f, 1f  // bottom right
+        };
+
+        int coordSize = 3;
+        int colorSize = 4;
+
+        int[] elementArray = new int[]{
+                3, 1, 0,
+                0, 3, 2
+        };
+
+        RenderingState.VertexArray.init();
+        RenderingState.VertexBuffer.init(vertexData);
+        RenderingState.ElementBuffer.init(elementArray);
+
+        RenderingState.VertexArray.setAttribs(coordSize, colorSize, 0);
+        RenderingState.VertexArray.enableAttribs();
+
+        glClearColor(1.0f, 0.0f, 0.0f, 0.0f);
     }
 
     /**
@@ -132,112 +176,68 @@ public class Window {
         this.timer = timer;
     }
 
+    protected void addDrawFunctionBatch(ArrayList<Runnable> functionBatch) {
+        functionBatchQueue.add(functionBatch);
+    }
+
+    public Position getCursorPos() {
+        return cursorPosListener.getPosition();
+    }
+
+    public boolean getMouseButtonPressed(int button) {
+        return mouseButtonListener.getButtonState(button);
+    }
+
+    public boolean getKeyPressed(int key) {
+        return keyListener.getKeyState(key);
+    }
+
+    public double getTimeDelta() {
+        return timer.tick(glfwGetTime());
+    }
+
+    public boolean shouldClose() {
+        return glfwWindowShouldClose(windowHandle);
+    }
+
+    public void pollEvents() {
+        glfwPollEvents();
+    }
+
     /**
      * Runs a loop where all the game's logic
      * will be contained.
-     * @param game Game object that will be put inside a loop
      */
-    public void run(Game game) {
-        System.out.println("Hello LWJGL" + Version.getVersion() + "!");
-        
-        GL.createCapabilities();
-        
-        String vertexSource;
-        String fragmentSource;
-        try {
-            vertexSource = readEntireFile("assets/shaders/vertex.glsl");
-            fragmentSource = readEntireFile("assets/shaders/fragment.glsl");
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+    public void run() {
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // clear the framebuffer
 
-        windowShader = new Shader(vertexSource, fragmentSource);
-        camera = new Camera();
+        glUseProgram(windowShader.getId());
 
-        projectionBuffer = BufferUtils.createFloatBuffer(16);
-        viewBuffer = BufferUtils.createFloatBuffer(16);
+        camera.getViewMatrix().get(viewBuffer);
+        camera.getProjMatrix().get(projectionBuffer);
 
-        float[] vertexData = new float[]{
-                -0.5f, 0.5f, 1f, 1f, 1f, 1f, 1f,  // top left
-                0.5f, 0.5f, 1f, 1f, 1f, 1f, 1f,   // top right
-                -0.5f, -0.5f, 1f, 1f, 1f, 1f, 1f, // bottom left
-                0.5f, -0.5f, 1f, 1f, 1f, 1f, 1f  // bottom right
-        };
-        
-        int coordSize = 3;
-        int colorSize = 4;
+        glUniformMatrix4fv(windowShader.getUniformLocation("viewMatrix"), false, viewBuffer);
+        glUniformMatrix4fv(windowShader.getUniformLocation("projMatrix"), false, projectionBuffer);
 
-        int[] elementArray = new int[]{
-                0, 1, 2,
-                2, 1, 3
-        };
-        
-        RenderingState.VertexArray.init();
-        RenderingState.VertexBuffer.init(vertexData);
-        RenderingState.ElementBuffer.init(elementArray);
-
-        RenderingState.VertexArray.setAttribs(coordSize, colorSize, 0);
+        glBindVertexArray(RenderingState.getVaoId());
         RenderingState.VertexArray.enableAttribs();
 
-        glClearColor(1.0f, 0.0f, 0.0f, 0.0f);
+        var functionBatch = functionBatchQueue.poll();
+        for(var function : functionBatch) function.run();
 
-        mouse = new Mouse();
-        keyboard = new Keyboard();
+        RenderingState.VertexArray.disableAttribs();
+        glBindVertexArray(0);
+        glUseProgram(0);
 
-        while (!glfwWindowShouldClose(windowHandle)) {
-            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // clear the framebuffer
+        glfwSwapBuffers(windowHandle);
+    }
 
-            glUseProgram(windowShader.getId());
-
-            camera.getViewMatrix().get(viewBuffer);
-            camera.getProjMatrix().get(projectionBuffer);
-
-            glUniformMatrix4fv(windowShader.getUniformLocation("viewMatrix"), false, viewBuffer);
-            glUniformMatrix4fv(windowShader.getUniformLocation("projMatrix"), false, projectionBuffer);
-
-            glBindVertexArray(RenderingState.getVaoId());
-            RenderingState.VertexArray.enableAttribs();
-
-            mouse.cursorPosition.setX(cursorPosListener.getXPos());
-            mouse.cursorPosition.setY(cursorPosListener.getYPos());
-            mouse.setButtonStates(mouseButtonListener.getAllButtonStates());
-            keyboard.setKeyStates(keyListener.getAllKeyStates());
-
-            game.runFrame(timer.tick(glfwGetTime()), keyboard, mouse, this);
-
-            RenderingState.VertexArray.disableAttribs();
-            glBindVertexArray(0);
-            glUseProgram(0);
-
-            glfwSwapBuffers(windowHandle);
-            glfwPollEvents();
-        }
-        
+    public void destroy() {
         glfwFreeCallbacks(windowHandle);
         glfwDestroyWindow(windowHandle);
         glfwTerminate();
-        
+
         Objects.requireNonNull(glfwSetErrorCallback(null)).free();
-    }
-    
-    public void draw(Entity entity) {
-        if(entity instanceof Rectangle) {
-            Position position = entity.getPosition();
-            float x = position.getX();
-            float y = position.getY();
-            float z = position.getZ();
-
-            float[] newVertexArray = {
-                    x - 0.5f, y + 0.5f, z, 1f, 1f, 1f, 1f,    // top left
-                    x + 0.5f, y + 0.5f, z, 1f, 1f, 1f, 1f,   // top right
-                    x - 0.5f, y - 0.5f, z, 1f, 1f, 1f, 1f,  // bottom left
-                    x + 0.5f, y - 0.5f, z, 1f, 1f, 1f, 1f  // bottom right
-            };
-
-            glBufferSubData(GL_ARRAY_BUFFER, 0, newVertexArray);
-            glDrawElements(GL_TRIANGLES, RenderingState.ElementBuffer.getElementArray().length,
-                    GL_UNSIGNED_INT, 0);
-        }
     }
     
     private static @NotNull String readEntireFile(String filename) throws IOException {
