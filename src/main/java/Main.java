@@ -20,6 +20,8 @@ public class Main {
         var mainDrawer = new Drawer(mainWindow);
         var rougeRectangle = new Rectangle(0.4f,0.4f, 0f, 0f, 0f, mainDrawer);
 
+        rougeRectangle.setTexture("assets/sprites/abooga.png");
+
         while(!mainWindow.shouldClose()) {
             mainWindow.pollEvents();
 

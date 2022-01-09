@@ -3,7 +3,7 @@ package engine;
 import engine.core.Position;
 import engine.eventlisteners.*;
 import engine.graphics.Camera;
-import engine.internal.RenderingState;
+import engine.internal.Rendering;
 import engine.internal.Shader;
 
 import engine.logic.Timer;
@@ -41,7 +41,7 @@ public class Window {
 
     private FloatBuffer projectionBuffer;
     private FloatBuffer viewBuffer;
-    
+
     private CursorPosListener cursorPosListener;
     private MouseButtonListener mouseButtonListener;
     private KeyListener keyListener;
@@ -58,15 +58,15 @@ public class Window {
      */
     public Window() {
         GLFWErrorCallback.createPrint(System.err).set();
-        
+
         if (!glfwInit()) {
             throw new IllegalStateException("Unable to initialize GLFW");
         }
-        
+
         glfwDefaultWindowHints();
         glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
         glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
-        
+
         windowHandle = glfwCreateWindow(1280, 720, "Rouge", NULL, NULL);
         if (windowHandle == NULL) {
             throw new RuntimeException("Failed to create the GLFW window");
@@ -80,7 +80,7 @@ public class Window {
         try (MemoryStack stack = stackPush()) {
             IntBuffer pWidth = stack.mallocInt(1); // int*
             IntBuffer pHeight = stack.mallocInt(1); // int*
-            
+
             // Get the window size passed to glfwCreateWindow
             glfwGetWindowSize(windowHandle, pWidth, pHeight);
 
@@ -93,7 +93,7 @@ public class Window {
             glfwSetWindowPos(windowHandle,
                     (vidmode.width() - pWidth.get(0)) / 2, (vidmode.height() - pHeight.get(0)) / 2);
         }
-        
+
         glfwMakeContextCurrent(windowHandle);
         glfwSwapInterval(1); // Enables v-sync
         glfwShowWindow(windowHandle);
@@ -116,29 +116,28 @@ public class Window {
         projectionBuffer = BufferUtils.createFloatBuffer(16);
         viewBuffer = BufferUtils.createFloatBuffer(16);
 
-        float[] vertexData = new float[]{
-                -0.5f, 0.5f, 1f, 1f, 1f, 1f, 1f,    // top left
-                0.5f, 0.5f, 1f, 1f, 1f, 1f, 1f,    // top right
-                -0.5f, -0.5f, 1f, 1f, 1f, 1f, 1f, // bottom left
-                0.5f, -0.5f, 1f, 1f, 1f, 1f, 1f  // bottom right
-        };
+        float[] dummyVertexData = new float[0];
+        int[] dummyElementArray = new int[0];
 
         int coordSize = 3;
         int colorSize = 4;
+        int texSize = 2;
 
-        int[] elementArray = new int[]{
-                3, 1, 0,
-                0, 3, 2
-        };
 
-        RenderingState.VertexArray.init();
-        RenderingState.VertexBuffer.init(vertexData);
-        RenderingState.ElementBuffer.init(elementArray);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        glEnable(GL_BLEND);
 
-        RenderingState.VertexArray.setAttribs(coordSize, colorSize, 0);
-        RenderingState.VertexArray.enableAttribs();
+        Rendering.VertexArray.init();
+        Rendering.VertexBuffer.init();
+        Rendering.ElementBuffer.init();
 
-        glClearColor(1.0f, 0.0f, 0.0f, 0.0f);
+        Rendering.VertexBuffer.bind(dummyVertexData);
+        Rendering.ElementBuffer.bind(dummyElementArray);
+
+        Rendering.VertexArray.setAttribs(coordSize, colorSize, texSize);
+        Rendering.VertexArray.enableAttribs();
+
+        glClearColor(1.0f, 1.0f, 1.0f, 0.0f);
     }
 
     /**
@@ -211,10 +210,6 @@ public class Window {
         glfwPollEvents();
     }
 
-    /**
-     * Runs a loop where all the game's logic
-     * will be contained.
-     */
     public void update() {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // clear the framebuffer
 
@@ -226,12 +221,13 @@ public class Window {
         glUniformMatrix4fv(windowShader.getUniformLocation("viewMatrix"), false, viewBuffer);
         glUniformMatrix4fv(windowShader.getUniformLocation("projMatrix"), false, projectionBuffer);
 
-        glBindVertexArray(RenderingState.getVaoId());
-        RenderingState.VertexArray.enableAttribs();
+        glBindVertexArray(Rendering.getVaoId());
+        Rendering.VertexArray.enableAttribs();
 
         for(Runnable r : functionBatch) Objects.requireNonNull(functionBatch.poll()).run();
 
-        RenderingState.VertexArray.disableAttribs();
+        Rendering.VertexArray.disableAttribs();
+        glBindTexture(GL_TEXTURE_2D, 0);
         glBindVertexArray(0);
         glUseProgram(0);
 

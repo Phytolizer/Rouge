@@ -1,6 +1,6 @@
 package engine;
 
-import engine.internal.RenderingState;
+import engine.internal.Rendering;
 import engine.logic.entities.Rectangle;
 
 import static org.lwjgl.opengl.GL33.*;
@@ -23,15 +23,26 @@ public class Drawer {
             float width = size.getWidth();
             float height = size.getHeight() * window.getAspectRatio();
 
-            float[] newVertexArray = {
-                    x - (width/2), y + (height/2), z, 1f, 1f, 1f, 1f,    // top left
-                    x + (width/2), y + (height/2), z, 1f, 1f, 1f, 1f,   // top right
-                    x - (width/2), y - (height/2), z, 1f, 1f, 1f, 1f,  // bottom left
-                    x + (width/2), y - (height/2), z, 1f, 1f, 1f, 1f  // bottom right
+            var texture = rectangle.getTexture();
+            if(texture != null) {
+                texture.set();
+            }
+
+            float[] vertexArray = {
+                    x - (width/2), y + (height/2), z,  1f, 1f, 1f, 1f,  0f, 1f,    // top left
+                    x + (width/2), y + (height/2), z,  1f, 1f, 1f, 1f,  1f, 1f,  // top right
+                    x - (width/2), y - (height/2), z,  1f, 1f, 1f, 1f,  0f, 0f,  // bottom left
+                    x + (width/2), y - (height/2), z,  1f, 1f, 1f, 1f,  1f, 0f  // bottom right
             };
 
-            glBufferSubData(GL_ARRAY_BUFFER, 0, newVertexArray);
-            glDrawElements(GL_TRIANGLES, RenderingState.ElementBuffer.getElementArray().length,
+            int[] elementArray = {
+                    3, 1, 0,
+                    0, 3, 2
+            };
+
+            Rendering.VertexBuffer.bind(vertexArray);
+            Rendering.ElementBuffer.bind(elementArray);
+            glDrawElements(GL_TRIANGLES, elementArray.length,
                     GL_UNSIGNED_INT, 0);
         });
     }
