@@ -3,34 +3,25 @@ package engine;
 import engine.internal.RenderingState;
 import engine.logic.entities.Rectangle;
 
-import java.util.ArrayDeque;
-
 import static org.lwjgl.opengl.GL33.*;
 
 public class Drawer {
     private final Window window;
-    private final ArrayDeque<Runnable> functionBatch;
 
     public Drawer(Window aWindow) {
         this.window = aWindow;
-        functionBatch = new ArrayDeque<>();
-    }
-
-    public void update() {
-        window.addDrawFunctionBatch(functionBatch.clone());
-        functionBatch.clear();
     }
 
     public void drawRectangle(Rectangle rectangle) {
-        functionBatch.add(() -> {
+        window.addDrawFunctionBatch(() -> {
             var position = rectangle.getPosition();
             var size = rectangle.getSize();
 
             float x = position.getX();
-            float y = position.getY();
+            float y = position.getY() * window.getAspectRatio();
             float z = position.getZ();
             float width = size.getWidth();
-            float height = size.getHeight();
+            float height = size.getHeight() * window.getAspectRatio();
 
             float[] newVertexArray = {
                     x - (width/2), y + (height/2), z, 1f, 1f, 1f, 1f,    // top left

@@ -21,7 +21,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
-import java.util.concurrent.ArrayBlockingQueue;
 
 import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
 import static org.lwjgl.glfw.GLFW.*;
@@ -38,6 +37,8 @@ public class Window {
     private final long windowHandle;
     private Shader windowShader;
 
+    private float aspectRatio;
+
     private FloatBuffer projectionBuffer;
     private FloatBuffer viewBuffer;
     
@@ -48,7 +49,7 @@ public class Window {
     private Camera camera;
     private Timer timer;
 
-    private Queue<Deque<Runnable>> functionBatchQueue;
+    private Deque<Runnable> functionBatch;
 
     /**
      * Will create a window, set its resolution,
@@ -70,8 +71,11 @@ public class Window {
         if (windowHandle == NULL) {
             throw new RuntimeException("Failed to create the GLFW window");
         }
-        
-        glfwSetWindowSizeCallback(windowHandle, (window, x, y) -> glViewport(0, 0, x, y));
+
+        glfwSetWindowSizeCallback(windowHandle, (window, x, y) ->  {
+            glViewport(0, 0, x, y);
+            aspectRatio = (float) x/y;
+        });
 
         try (MemoryStack stack = stackPush()) {
             IntBuffer pWidth = stack.mallocInt(1); // int*
@@ -79,12 +83,13 @@ public class Window {
             
             // Get the window size passed to glfwCreateWindow
             glfwGetWindowSize(windowHandle, pWidth, pHeight);
-            
+
             // Get the resolution of the primary monitor
             GLFWVidMode vidmode = glfwGetVideoMode(glfwGetPrimaryMonitor());
-            
-            // Center the window
+
             assert vidmode != null;
+            aspectRatio = (float) vidmode.width() / vidmode.height();
+            // Center the window
             glfwSetWindowPos(windowHandle,
                     (vidmode.width() - pWidth.get(0)) / 2, (vidmode.height() - pHeight.get(0)) / 2);
         }
@@ -94,7 +99,7 @@ public class Window {
         glfwShowWindow(windowHandle);
         GL.createCapabilities();
 
-        functionBatchQueue = new ArrayBlockingQueue<>(10);
+        functionBatch = new ArrayDeque<>();
 
         String vertexSource;
         String fragmentSource;
@@ -174,8 +179,8 @@ public class Window {
         this.timer = timer;
     }
 
-    protected void addDrawFunctionBatch(Deque<Runnable> functionBatch) {
-        functionBatchQueue.add(functionBatch);
+    protected void addDrawFunctionBatch(Runnable drawingCall) {
+        functionBatch.add(drawingCall);
     }
 
     public Position getCursorPos() {
@@ -194,6 +199,10 @@ public class Window {
         return timer.tick(glfwGetTime());
     }
 
+    public float getAspectRatio() {
+        return aspectRatio;
+    }
+
     public boolean shouldClose() {
         return glfwWindowShouldClose(windowHandle);
     }
@@ -206,7 +215,7 @@ public class Window {
      * Runs a loop where all the game's logic
      * will be contained.
      */
-    public void run() {
+    public void update() {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // clear the framebuffer
 
         glUseProgram(windowShader.getId());
@@ -220,11 +229,7 @@ public class Window {
         glBindVertexArray(RenderingState.getVaoId());
         RenderingState.VertexArray.enableAttribs();
 
-        var functionBatch = functionBatchQueue.poll();
-        var batchIterator = functionBatch.iterator();
-        while(batchIterator.hasNext()) {
-            batchIterator.next().run();
-        }
+        for(Runnable r : functionBatch) Objects.requireNonNull(functionBatch.poll()).run();
 
         RenderingState.VertexArray.disableAttribs();
         glBindVertexArray(0);

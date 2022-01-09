@@ -19,6 +19,12 @@ public class Rectangle extends Entity {
         this.drawer = aDrawer;
     }
 
+    public void moveBy(float xInc, float yInc, float zInc) {
+        this.position.increaseX(xInc);
+        this.position.increaseY(yInc);
+        this.position.increaseZ(zInc);
+    }
+
     public Size getSize() {
         return size;
     }

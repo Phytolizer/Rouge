@@ -6,7 +6,7 @@ import engine.core.Position;
  * of in-game objects, for example players, items, etc.
  */
 public class Entity {
-    private final Position position;
+    protected final Position position;
 
     public Entity(Position aPosition) {
         this.position = (Position) aPosition.clone();
@@ -14,12 +14,6 @@ public class Entity {
 
     public Entity(float x, float y, float z) {
         this.position = new Position(x, y, z);
-    }
-
-    public void moveBy(float xInc, float yInc, float zInc) {
-        this.position.increaseX(xInc);
-        this.position.increaseY(yInc);
-        this.position.increaseZ(zInc);
     }
 
     public void moveTo(float x, float y, float z) {

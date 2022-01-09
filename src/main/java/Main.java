@@ -23,31 +23,28 @@ public class Main {
         while(!mainWindow.shouldClose()) {
             mainWindow.pollEvents();
 
-            float timeConstant = (float) ((1 / mainWindow.getTimeDelta()) / 60);
-
             if (mainWindow.getKeyPressed(GLFW_KEY_D)) {
-                rougeRectangle.moveBy(0.01f * timeConstant, 0f, 0f);
+                rougeRectangle.moveBy(0.01f, 0f, 0f);
             }
             if (mainWindow.getKeyPressed(GLFW_KEY_A)) {
-                rougeRectangle.moveBy(-0.01f * timeConstant, 0f, 0f);
+                rougeRectangle.moveBy(-0.01f, 0f, 0f);
             }
             if (mainWindow.getKeyPressed(GLFW_KEY_W))   {
-                rougeRectangle.moveBy(0f, 0.01f * timeConstant, 0f);
+                rougeRectangle.moveBy(0f, 0.01f, 0f);
             }
             if (mainWindow.getKeyPressed(GLFW_KEY_S)) {
-                rougeRectangle.moveBy(0f, -0.01f * timeConstant, 0f);
+                rougeRectangle.moveBy(0f, -0.01f, 0f);
             }
             if(mainWindow.getKeyPressed(GLFW_KEY_UP)) {
-                rougeRectangle.moveBy(0f, 0f, 0.01f * timeConstant);
+                rougeRectangle.moveBy(0f, 0f, 0.01f);
             }
             if(mainWindow.getKeyPressed(GLFW_KEY_DOWN)) {
-                rougeRectangle.moveBy(0f, 0f, -0.01f * timeConstant);
+                rougeRectangle.moveBy(0f, 0f, -0.01f);
             }
 
             rougeRectangle.draw();
-            mainDrawer.update();
 
-            mainWindow.run();
+            mainWindow.update();
         }
         mainWindow.destroy();
     }
