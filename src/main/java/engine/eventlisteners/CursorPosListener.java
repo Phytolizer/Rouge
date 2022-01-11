@@ -1,6 +1,6 @@
 package engine.eventlisteners;
 
-import engine.core.Position;
+import engine.core.Coords;
 import org.lwjgl.glfw.GLFWCursorPosCallbackI;
 
 /**
@@ -9,10 +9,10 @@ import org.lwjgl.glfw.GLFWCursorPosCallbackI;
  * state.
  */
 public class CursorPosListener implements GLFWCursorPosCallbackI {
-    private final Position position;
+    private final Coords.Position position;
 
     public CursorPosListener() {
-        position = new Position(0f, 0f, 0f);
+        position = new Coords.Position(0f, 0f, 0f);
     }
 
     @Override
@@ -22,7 +22,7 @@ public class CursorPosListener implements GLFWCursorPosCallbackI {
     }
 
 
-    public Position getPosition() {
-        return (Position) position.clone();
+    public Coords.Position getPosition() {
+        return (Coords.Position) position.clone();
     }
 }

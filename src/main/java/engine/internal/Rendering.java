@@ -5,6 +5,7 @@ import org.lwjgl.system.MemoryStack;
 
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
+import java.util.Objects;
 
 import static org.lwjgl.opengl.GL33.*;
 import static org.lwjgl.system.MemoryStack.stackPush;
@@ -16,7 +17,6 @@ import static org.lwjgl.system.MemoryStack.stackPush;
  */
 public class Rendering {
     private static int vaoId, vboId, eboId;
-    private static int vapCount;
 
     public static int getVaoId() {
         return vaoId;
@@ -36,6 +36,7 @@ public class Rendering {
      * Rendering's pipeline VAO, or Vertex Array Object.
      */
     public static class VertexArray {
+        private static boolean[] activeAttr;
 
         /**
          * Creates a VAO ID and binds it to the current OpenGL Context,
@@ -43,6 +44,7 @@ public class Rendering {
          */
         public static void init() {
             vaoId = glGenVertexArrays();
+            activeAttr = new boolean[3];
             glBindVertexArray(vaoId);
 
             if(vaoId == 0) {
@@ -66,20 +68,30 @@ public class Rendering {
             int pos = 0;
             if (coordSize > 0) {
                 glVertexAttribPointer(i, coordSize, GL_FLOAT, false, vertexSize, pos);
+                activeAttr[i] = true;
                 i++;
                 pos += coordSize * Float.BYTES;
-                vapCount++;
+
+            } else {
+                activeAttr[i] = false;
+                i++;
             }
+
             if (colorSize > 0) {
                 glVertexAttribPointer(i, colorSize, GL_FLOAT, false, vertexSize, pos);
+                activeAttr[i] = true;
                 i++;
                 pos += colorSize * Float.BYTES;
-                vapCount++;
+            } else {
+                activeAttr[i] = false;
+                i++;
             }
+
             if (texCoordSize > 0) {
-                glVertexAttribPointer(i, texCoordSize, GL_FLOAT, false,
-                        vertexSize, pos);
-                vapCount++;
+                glVertexAttribPointer(i, texCoordSize, GL_FLOAT, false, vertexSize, pos);
+                activeAttr[i] = true;
+            } else {
+                activeAttr[i] = false;
             }
         }
 
@@ -88,8 +100,8 @@ public class Rendering {
          * setAttribs() method.
          */
         public static void enableAttribs() {
-            for (int i = 0; i < vapCount; i++) {
-                glEnableVertexAttribArray(i);
+            for (int i = 0; i < activeAttr.length; i++) {
+                if(activeAttr[i]) glEnableVertexAttribArray(i);
             }
         }
 
@@ -98,8 +110,8 @@ public class Rendering {
          * setAttribs( method.
          */
         public static void disableAttribs() {
-            for (int i = 0; i < vapCount; i++) {
-                glDisableVertexAttribArray(i);
+            for (int i = 0; i < activeAttr.length; i++) {
+                if(activeAttr[i]) glDisableVertexAttribArray(i);
             }
         }
     }
@@ -177,6 +189,7 @@ public class Rendering {
 
                 STBImage.stbi_set_flip_vertically_on_load(true);
                 ByteBuffer imageData = STBImage.stbi_load(imageSrc, width, height, channels, 0);
+                Objects.requireNonNull(imageData);
 
                 glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width.get(0), height.get(0), 0, GL_RGBA, GL_UNSIGNED_BYTE, imageData);
                 glGenerateMipmap(GL_TEXTURE_2D);

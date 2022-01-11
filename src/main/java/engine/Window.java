@@ -1,12 +1,12 @@
 package engine;
 
-import engine.core.Position;
+import engine.core.Coords;
 import engine.eventlisteners.*;
 import engine.graphics.Camera;
 import engine.internal.Rendering;
 import engine.internal.Shader;
 
-import engine.logic.Timer;
+import engine.graphics.FrameTimer;
 import org.jetbrains.annotations.NotNull;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.glfw.GLFWErrorCallback;
@@ -47,7 +47,7 @@ public class Window {
     private KeyListener keyListener;
 
     private Camera camera;
-    private Timer timer;
+    private FrameTimer frameTimer;
 
     private Deque<Runnable> functionBatch;
 
@@ -120,7 +120,7 @@ public class Window {
         int[] dummyElementArray = new int[0];
 
         int coordSize = 3;
-        int colorSize = 4;
+        int colorSize = 0;
         int texSize = 2;
 
 
@@ -172,17 +172,17 @@ public class Window {
 
     /**
      * Defines a timer.
-     * @param timer Timer object
+     * @param frameTimer Timer object
      */
-    public void setTimer(Timer timer) {
-        this.timer = timer;
+    public void setTimer(FrameTimer frameTimer) {
+        this.frameTimer = frameTimer;
     }
 
     protected void addDrawFunctionBatch(Runnable drawingCall) {
         functionBatch.add(drawingCall);
     }
 
-    public Position getCursorPos() {
+    public Coords.Position getCursorPos() {
         return cursorPosListener.getPosition();
     }
 
@@ -195,7 +195,7 @@ public class Window {
     }
 
     public double getTimeDelta() {
-        return timer.tick(glfwGetTime());
+        return frameTimer.tick(glfwGetTime());
     }
 
     public float getAspectRatio() {

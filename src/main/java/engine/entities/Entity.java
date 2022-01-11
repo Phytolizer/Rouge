@@ -1,19 +1,19 @@
-package engine.logic.entities;
-import engine.core.Position;
+package engine.entities;
+import engine.core.Coords;
 
 /**
  * the {@code Entity} class is used for the creation
  * of in-game objects, for example players, items, etc.
  */
 public class Entity {
-    protected final Position position;
+    protected final Coords.Position position;
 
-    public Entity(Position aPosition) {
-        this.position = (Position) aPosition.clone();
+    public Entity(Coords.Position aPosition) {
+        this.position = (Coords.Position) aPosition.clone();
     }
 
     public Entity(float x, float y, float z) {
-        this.position = new Position(x, y, z);
+        this.position = new Coords.Position(x, y, z);
     }
 
     public void moveTo(float x, float y, float z) {
@@ -22,7 +22,7 @@ public class Entity {
         this.position.setZ(z);
     }
 
-    public Position getPosition() {
+    public Coords.Position getPosition() {
         return this.position;
     }
 }

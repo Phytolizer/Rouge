@@ -1,15 +1,15 @@
 package engine.graphics;
-import engine.core.Position;
+import engine.core.Coords;
 import org.joml.Matrix4f;
 
 public class Camera {
-    public final Position position;
+    public final Coords.Position position;
 
     private Matrix4f viewMatrix;
     private Matrix4f projMatrix;
 
     public Camera() {
-        position = new Position(0f, 0f, 0f);
+        position = new Coords.Position(0f, 0f, 0f);
 
         viewMatrix = new Matrix4f().lookAt(
                         0f, 0f, 5f,

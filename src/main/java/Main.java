@@ -1,23 +1,25 @@
-import engine.Drawer;
+import engine.Artist;
+import engine.core.Coords;
 import engine.eventlisteners.CursorPosListener;
 import engine.eventlisteners.MouseButtonListener;
 import engine.Window;
 import engine.eventlisteners.KeyListener;
-import engine.logic.Timer;
-import engine.logic.entities.Rectangle;
+import engine.graphics.FrameTimer;
+import engine.entities.Rectangle;
 
 import static org.lwjgl.glfw.GLFW.*;
-import static org.lwjgl.glfw.GLFW.GLFW_KEY_DOWN;
 
 public class Main {
     public static void main(String[] args) {
         var mainWindow = new Window();
-        mainWindow.setTimer(new Timer());
+        mainWindow.setTimer(new FrameTimer());
         mainWindow.setCursorPosListener(new CursorPosListener());
         mainWindow.setMouseButtonListener(new MouseButtonListener());
         mainWindow.setKeyListener(new KeyListener());
 
-        var mainDrawer = new Drawer(mainWindow);
+        Coords.setAspectRatio(mainWindow.getAspectRatio());
+
+        var mainDrawer = new Artist(mainWindow);
         var rougeRectangle = new Rectangle(0.4f,0.4f, 0f, 0f, 0f, mainDrawer);
 
         rougeRectangle.setTexture("assets/sprites/abooga.png");
