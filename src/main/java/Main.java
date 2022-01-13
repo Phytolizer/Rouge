@@ -7,11 +7,14 @@ import engine.eventlisteners.KeyListener;
 import engine.graphics.FrameTimer;
 import engine.entities.Rectangle;
 
+import java.io.IOException;
+
 import static org.lwjgl.glfw.GLFW.*;
 
 public class Main {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         var mainWindow = new Window();
+        var position = 0;
         mainWindow.setTimer(new FrameTimer());
         mainWindow.setCursorPosListener(new CursorPosListener());
         mainWindow.setMouseButtonListener(new MouseButtonListener());
@@ -20,9 +23,10 @@ public class Main {
         Coords.setAspectRatio(mainWindow.getAspectRatio());
 
         var mainDrawer = new Artist(mainWindow);
-        var rougeRectangle = new Rectangle(0.4f,0.4f, 0f, 0f, 0f, mainDrawer);
+        float tempPixelSize = 0.0032345f;
+        var rougeRectangle = new Rectangle(tempPixelSize * 500,tempPixelSize * 250, 0f, 0f, 0f, mainDrawer);
 
-        rougeRectangle.setTexture("assets/sprites/abooga.png");
+        rougeRectangle.setTexture("assets/sprites/blue_slime_test_sprite_2.png");
 
         while(!mainWindow.shouldClose()) {
             mainWindow.pollEvents();
@@ -39,11 +43,11 @@ public class Main {
             if (mainWindow.getKeyPressed(GLFW_KEY_S)) {
                 rougeRectangle.moveBy(0f, -0.01f, 0f);
             }
-            if(mainWindow.getKeyPressed(GLFW_KEY_UP)) {
-                rougeRectangle.moveBy(0f, 0f, 0.01f);
+            if (rougeRectangle.isHovered(mainWindow)) {
+                System.out.print("\rRECTANGLE'S HOVERED!");
             }
-            if(mainWindow.getKeyPressed(GLFW_KEY_DOWN)) {
-                rougeRectangle.moveBy(0f, 0f, -0.01f);
+            if (!rougeRectangle.isHovered(mainWindow)) {
+                System.out.print("\r ");
             }
 
             rougeRectangle.draw();
